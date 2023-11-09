@@ -7,59 +7,39 @@ import sqlite3
 import hashlib
 
 
-class SqliteDatabase:
-    def __init__(self, path: str) -> None:
-        self.__path = Path(path).resolve()
-        dir = self.__path.parent
-        if not dir.exists():
-            dir.mkdir(parents=True, exist_ok=True)
-            with open(self.__path, "x") as f:
-                ...
-
-        self.__conn = sqlite3.connect(path)
-
-    @property
-    def path(self) -> Path:
-        return self.__path
-
-    @property
-    def conn(self) -> sqlite3.Connection:
-        return self.__conn
-
-    def query(self, sqlString: str, sqlParam: tuple | dict = None) -> list:
-        if sqlParam is None:
-            sqlParam = ()
-
-        # Inizializza il cursore
-        cur = self.conn.cursor()
-
-        # Esegui la query aggiornando il database se necessario
-        cur.execute(sqlString, sqlParam)
-        if (
-            sqlString.count("UPDATE")
-            or sqlString.count("DELETE")
-            or sqlString.count("INSERT")
-        ):
-            self.conn.commit()
-
-        # Get all the resoults of the query
-        res = cur.fetchall()
-
-        # Chiudi il cursore
-        cur.close()
-        return res
-
-    def delete(self):
-        self.__conn.close()
-        remove(self.path)
+def SQL_query(db: str | Path, sqlString: str, sqlParam: tuple | dict = None) -> dict[str, str]:
+    if sqlParam is None:
+        sqlParam = ()
+    # Inizializza il cursore
+    conn = sqlite3.connect(db)
+    conn.row_factory = sqlite3.Row
+    cur = conn.cursor()
+    # Esegui la query aggiornando il database se necessario
+    cur.execute(sqlString, sqlParam)
+    if (
+        sqlString.count("UPDATE")
+        or sqlString.count("DELETE")
+        or sqlString.count("INSERT")
+    ):
+        conn.commit()
+    # Get all the resoults of the query
+    res = cur.fetchall()
+    # Chiudi il cursore
+    cur.close()
+    conn.close()
+    return res
 
 
 def start_database(
-    dbPath: str, sqlString: str, sqlParam: tuple | dict = None
-) -> SqliteDatabase:
-    UsersDb = SqliteDatabase(dbPath)
-    UsersDb.query(sqlString, sqlParam)
-    return UsersDb
+    dbPath: str | Path, sqlString: str, sqlParam: tuple | dict = None
+) -> None:
+    dir = Path(dbPath).resolve().parent
+    if not dir.exists():
+        dir.mkdir(parents=True, exist_ok=True)
+        with open(dbPath, "x") as f:
+            ...
+    SQL_query(dbPath, sqlString, sqlParam)
+    return None
 
 
 def empty_input(*args: str) -> bool:
@@ -75,20 +55,20 @@ def invalid_name(name: str) -> bool:
     return False
 
 
-def get_name(conn: SqliteDatabase, name: str) -> Literal[False] | list:
-    row = conn.query("SELECT * FROM Users WHERE UserName = ?", (name,))
-    if row:
+def get_name(db: str | Path, name: str) -> Literal[False] | list:
+    row = SQL_query(db, "SELECT * FROM Users WHERE UserName = ?", (name,))
+    if len(row) > 0:
         return row
     return False
 
 
-def create_user(conn: SqliteDatabase, name: str, pwd: str) -> None:
+def create_user(db: str | Path, name: str, pwd: str) -> None:
     hashedPwd = hash_password(pwd)
-    conn.query("INSERT INTO Users (UserName, Pwd) VALUES (?, ?)", (name, hashedPwd))
+    SQL_query(db, "INSERT INTO Users (UserName, Pwd) VALUES (?, ?)", (name, hashedPwd))
 
 
-def login_user(conn: SqliteDatabase, name: str, pwd: str) -> bool:
-    getNameResult = get_name(conn, name)
+def login_user(db: str | Path, name: str, pwd: str) -> bool:
+    getNameResult = get_name(db, name)
 
     if not getNameResult:
         return False
@@ -103,17 +83,17 @@ def login_user(conn: SqliteDatabase, name: str, pwd: str) -> bool:
     return True
 
 
-def search_user(conn: SqliteDatabase, name: str) -> dict[str, str | list | None]:
-    result = conn.query("SELECT * FROM Users WHERE UserName LIKE ?", (f"%{name}%",))
+def search_user(db: str | Path, name: str) -> dict[str, str | list | None]:
+    result = SQL_query(db, "SELECT * FROM Users WHERE UserName LIKE ?", (f"%{name}%",))
 
     if len(result) > 0:
-        return {"name": name, "result": result[0]}
+        return {"name": name, "result": result}
     else:
         return {"name": name, "result": None}
 
 
-def get_users(conn: SqliteDatabase, campaign: str) -> dict[str, list] | None:
-    result = conn.query("SELECT * FROM Users WHERE Campaign=?", (campaign,))
+def get_players(db: str | Path, campaign: str) -> dict[str, list] | None:
+    result = SQL_query(db, "SELECT * FROM Users WHERE Campaign=?", (campaign,))
     if result:
         return {"result": result}
     else:
@@ -131,9 +111,8 @@ def verify_password(inputPwd: str, hashedPwd: str) -> bool:
 
 def login_required(func: Callable, *args, **kwargs):
     def wrapper():
-        if session["loggedIn"]:
+        if "LoggedIn" in session and session["LoggedIn"]:
             return func(*args, **kwargs)
         else:
             return {"code": 401, "status": "Unauthorized"}
-
     return wrapper

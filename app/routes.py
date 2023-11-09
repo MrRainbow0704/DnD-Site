@@ -1,5 +1,4 @@
 from flask import render_template
-from .api import functions
 from . import app
 
 
