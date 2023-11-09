@@ -12,8 +12,12 @@ from .api import bp as api_bp
 
 app.register_blueprint(api_bp, url_prefix="/api")
 
-UserDb = functions.start_database("db.sqlite3")
-
-
-# if __name__ == "src":
-#     app.run(debug=True)
+UserDb = functions.start_database(
+    "db/Users.sqlite3",
+    """CREATE TABLE IF NOT EXISTS Users (
+            Id INTEGER PRIMARY KEY AUTOINCREMENT,
+            UserName TEXT NOT NULL,
+            Pwd TEXT NOT NULL,
+            Campaign TEXT)
+            """
+)
