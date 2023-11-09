@@ -56,7 +56,7 @@ cover/
 *.pot
 
 # Databases
-# db/
+db/
 
 # Flask stuff:
 instance/
