@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block nav_home %}selected{% endblock nav_home %}
+
+{% block main %}
+<h1>Sign in</h1>
+<form id="sign-in">
+    <span>
+        <label for="username">Username</label>
+        <input type="text" name="username" id="username" placeholder="Username...">
+    </span>
+    <span>
+        <label for="password">Password</label>
+        <input type="password" name="password" id="password" placeholder="Password...">
+    </span>
+    <span>
+        <label for="password-repeat">Ripeti password</label>
+        <input type="password" name="password-repeat" id="password-repeat" placeholder="Ripeti password...">
+    </span>
+    <button type="button" onclick="sign_in()">Registrati</button>
+</form>
+<script>
+    function sign_in() {
+        let userName = $("#username").val();
+        let password = $("#password").val();
+        let password_repeat = $("#password-repeat").val();
+        $.ajax({
+            url: "{{ url_for('api.sign_in') }}",
+            data: {
+                'UserName': userName,
+                'Pwd': password,
+                'PwdRepeat': password_repeat
+            },
+            type: "POST",
+            dataType: "json"
+        })
+            .done(function (response) {
+                console.log(response)
+                if (response.code == 401) {
+                    let error = $('<div id="alert-template"></div>').text(response.status)
+                    error.replaceAll("#alert-template", error)
+                } else if (response.code == 200) {
+                    window.location.href = "{{ url_for('profilo') }}"
+                }
+            })
+            .fail(function (code, status) {
+                console.log(code, status)
+                let error = $('<div id="alert-template">d/div>').text('There was an error processing your request:' + toString(code) + ' : ' + toString(JSON.stringify(status)));
+                error.replaceAll("#alert-template", error)
+            });
+    }
+</script>
+{% endblock main %}
