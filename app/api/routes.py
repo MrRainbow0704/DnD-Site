@@ -1,4 +1,5 @@
-from flask import request, session
+from flask import request, session, url_for
+from uuid import uuid4 as uuid
 from . import functions
 from . import bp as api
 from .. import UsersDb
@@ -47,7 +48,33 @@ def login():
         return {"code": 401, "status": "Login failed."}
 
 
-@api.route("/logout")
+@api.route("/logout", methods=["POST"])
 def logout():
     session.clear()
     return {"code": 200, "status": "OK, Logout successful."}
+
+
+@api.route("/create-campaign", methods=["POST"])
+def create_campaign():
+    code = uuid().hex
+    CampaignDb = f"db/{code}.sqlite3"
+    functions.start_database(
+        CampaignDb,
+        """CREATE TABLE IF NOT EXISTS Players (
+            UserId INTEGER PRIMARY KEY,
+            Name TEXT UNIQUE NOT NULL,
+            Dmg INTEGER DEFAULT 0,
+            BaseHp INTEGER DEFAULT 0,
+            Ap INTEGER DEFAULT 0,
+            Lvl INTEGER DEFAULT 1,
+            Exp INTEGER DEFAULT 0,
+            MaxHp INTEGER DEFAULT 0,
+            Inventory TEXT DEFAULT '[]',
+            Class TEXT DEFAULT '{}',
+            Race TEXT DEFAULT '{}',
+            Equipment TEXT DEFAULT '{}',
+            Stats TEXT DEFAULT '{}'
+            )
+            """,
+    )
+    return {"code": 200, "status": url_for('campaign', code=code)}

@@ -1,6 +1,8 @@
 from flask import render_template, redirect, session, url_for, flash
-from . import app
+import json
+from . import app, UsersDb
 from .api import routes as api_routes
+from .api.functions import SQL_query
 
 
 @app.route("/")
@@ -28,6 +30,20 @@ def logout():
 @app.route("/profile")
 def profilo():
     if "Id" in session:
-        return render_template("profile.html")
+        res = SQL_query(
+            UsersDb, "SELECT * FROM Users WHERE Id=?", (session["Id"],), single=True
+        )
+        return render_template("profile.html", campagne=json.loads(res["Campaign"]))
+    else:
+        return redirect(url_for("login"))
+
+
+@app.route("/campaign/<code>")
+def campaign(code):
+    if "Id" in session:
+        res = SQL_query(
+            UsersDb, "SELECT * FROM Users WHERE Id=?", (session["Id"],), single=True
+        )
+        return render_template("campaign.html", code=code, campagne=json.loads(res["Campaign"]))
     else:
         return redirect(url_for("login"))
