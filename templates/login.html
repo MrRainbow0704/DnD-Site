@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 
-{% block nav_sign_in %}selected bg-body-secondary" aria-current="page"{% endblock nav_sign_in %}
+{% block nav_login %}selected bg-body-secondary" aria-current="page"{% endblock nav_login %}
 
 {% block main %}
-<h1>Sign in</h1>
-<form id="sign-in">
+<h1>Login</h1>
+<form id="login">
     <span>
         <label for="username">Username</label>
         <input type="text" name="username" id="username" placeholder="Username...">
@@ -13,23 +13,18 @@
         <label for="password">Password</label>
         <input type="password" name="password" id="password" placeholder="Password...">
     </span>
-    <span>
-        <label for="password-repeat">Ripeti password</label>
-        <input type="password" name="password-repeat" id="password-repeat" placeholder="Ripeti password...">
-    </span>
-    <button type="button" onclick="sign_in()">Registrati</button>
+    <button type="button" onclick="login()">Registrati</button>
 </form>
+<p>Non hai un account? Crealo <a href="{{ url_for('sign_in') }}">QUI!</a></p>
 <script>
-    function sign_in() {
+    function login() {
         let userName = $("#username").val();
         let password = $("#password").val();
-        let password_repeat = $("#password-repeat").val();
         $.ajax({
-            url: "{{ url_for('api.sign_in') }}",
+            url: "{{ url_for('api.login') }}",
             data: {
                 'UserName': userName,
-                'Pwd': password,
-                'PwdRepeat': password_repeat
+                'Pwd': password
             },
             type: "POST",
             dataType: "json"

@@ -7,7 +7,9 @@ import sqlite3
 import hashlib
 
 
-def SQL_query(db: str | Path, sqlString: str, sqlParam: tuple | dict = None, single=False) -> dict[str, str] | list[dict[str, str]]:
+def SQL_query(
+    db: str | Path, sqlString: str, sqlParam: tuple | dict = None, single=False
+) -> dict[str, str] | list[dict[str, str]]:
     if sqlParam is None:
         sqlParam = ()
     # Inizializza il cursore
@@ -25,8 +27,20 @@ def SQL_query(db: str | Path, sqlString: str, sqlParam: tuple | dict = None, sin
     # Get all the resoults of the query
     if single:
         res = cur.fetchone()
+        if res is None:
+            res = {}
+        else:
+            res = dict(res)
     else:
         res = cur.fetchall()
+        error = False
+        for row in res:
+            if row is None:
+                error = True
+                res = []
+                break
+        if not error: 
+            res = list(map(dict, res))
     # Chiudi il cursore
     cur.close()
     conn.close()
@@ -60,6 +74,7 @@ def invalid_name(name: str) -> bool:
 
 def get_name(db: str | Path, name: str) -> Literal[False] | dict:
     row = SQL_query(db, "SELECT * FROM Users WHERE UserName = ?", (name,), single=True)
+    print("get_name(): {row=}")
     if len(row) > 0:
         return row
     return False
@@ -77,7 +92,7 @@ def login_user(db: str | Path, name: str, pwd: str) -> bool:
         return False
 
     pwdHashed = getNameResult["Pwd"]
-
+    print(f"login_user(): {pwdHashed=}\n{getNameResult}")
     if not verify_password(pwd, pwdHashed):
         return False
     session["Id"] = getNameResult["Id"]
@@ -108,4 +123,5 @@ def hash_password(password: str) -> str:
 
 
 def verify_password(inputPwd: str, hashedPwd: str) -> bool:
-    return hashlib.sha256(inputPwd.encode()).hexdigest() == hashedPwd
+    print(f"verify_password(): {inputPwd=}", "\n", f"{hash_password(inputPwd)=}", "\n", f"{hashedPwd=}")
+    return hash_password(inputPwd) == hashedPwd

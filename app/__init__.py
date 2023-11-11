@@ -20,8 +20,8 @@ functions.start_database(
     UsersDb,
     """CREATE TABLE IF NOT EXISTS Users (
             Id INTEGER PRIMARY KEY AUTOINCREMENT,
-            UserName TEXT NOT NULL,
+            UserName TEXT UNIQUE NOT NULL,
             Pwd TEXT NOT NULL,
-            Campaign TEXT)
+            Campaign TEXT DEFAULT '[]')
             """,
 )
