@@ -4,7 +4,10 @@
 
 {% block main %}
 <h1>Profilo</h1>
-<h2>Nome: {{ session["UserName"] }}</h2>
+<h2>Nome:
+
+    {{ session["UserName"] }}
+</h2>
 
 <form id="join-campaign">
     <label for="code">Codice invito:</label>
@@ -13,55 +16,67 @@
 </form>
 
 <form id="create-capaign">
+    <label for="code">Nome campagna:</label>
+    <input type="text" name="nome" id="nome" placeholder="Nome campagna...">
     <button type="button" onclick="create_campaign()">Crea una nuova campagna!</button>
 </form>
 
 <script>
     function create_campaign() {
-        $.ajax({
-            url: "{{ url_for('api.create_campaign') }}",
-            data: {},
-            type: "POST",
-            dataType: "json"
-        })
-        .done(function (response) {
-            if (response.code == 401) {
-                let error = $('<div id="alert"></div>').text(JSON.stringify(response.status))
-                error.replaceAll("#alert", error)
-            } else if (response.code == 200) {
-                window.location.href = response.status
-            }
-        })
-        .fail(function (code, status) {
-            let error = $('<div id="alert">d/div>').text('There was an error processing your request:' + toString(code) + ' : ' + toString(JSON.stringify(status)));
-            error.replaceAll("#alert", error)
-        });
+        let name = $("#nome").val();
+        console.log(name)
+        if (name === "") {
+            alert("Non hai inserito un nome per la campagna")
+        } else {
+            $.ajax({
+                url: "{{ url_for('api.create_campaign') }}",
+                data: {
+                    "Name": name
+                },
+                type: "POST",
+                dataType: "json"
+            })
+                .done(function (response) {
+                    if (response.code == 401) {
+                        let error = $('<div id="alert"></div>').text(JSON.stringify(response.status))
+                        error.replaceAll("#alert", error)
+                    } else if (response.code == 200) {
+                        window.location.href = response.status
+                    }
+                })
+                .fail(function (code, status) {
+                    let error = $('<div id="alert">d/div>').text('There was an error processing your request:' + code + ' : ' + JSON.stringify(status));
+                    error.replaceAll("#alert", error)
+                })
+        }
     }
-
-
 
     function join_campaign() {
         let code = $("#code").val();
-        $.ajax({
-            {# url: "{{ url_for('api.join_campaign') }}", #}
-            data: {
+        if (code === "") {
+            alert("Non hai inserito un nome per la campagna")
+        } else {
+            $.ajax({
+                {# url: "{{ url_for('api.join_campaign') }}", #}
+                data: {
                 'Code': code
             },
-            type: "POST",
-            dataType: "json"
-        })
-            .done(function (response) {
-                if (response.code == 401) {
-                    let error = $('<div id="alert"></div>').text(response.status)
-                    error.replaceAll("#alert", error)
-                } else if (response.code == 200) {
-                    window.location.href = response.status
-                }
+                type: "POST",
+                dataType: "json"
             })
+                .done(function (response) {
+                    if (response.code == 401) {
+                        let error = $('<div id="alert"></div>').text(response.status)
+                        error.replaceAll("#alert", error)
+                    } else if (response.code == 200) {
+                        window.location.href = response.status
+                    }
+                })
             .fail(function (code, status) {
-                let error = $('<div id="alert">d/div>').text('There was an error processing your request:' + toString(code) + ' : ' + toString(JSON.stringify(status)));
+                let error = $('<div id="alert">d/div>').text('There was an error processing your request:' + code + ' : ' + JSON.stringify(status));
                 error.replaceAll("#alert", error)
-            });
+            })
+    }
     }
 </script>
 {% endblock main %}

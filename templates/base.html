@@ -27,17 +27,21 @@
                     </li>
                     {% if "Id" in session %}
                     <li class="nav-item {% block nav_profile %}"{% endblock nav_profile %}>
-                        <a class="nav-link" href="{{ url_for('profilo') }}"><i class="bi bi-person-fill"></i> Profilo</a>
+                        <a class="nav-link" href="{{ url_for('profile') }}"><i class="bi bi-person-fill"></i> Profilo</a>
                     </li>
                     <li class="nav-item dropdown {% block nav_campagna %}"{% endblock nav_campagna %}>
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Dropdown
+                            Campagne
                         </a>
                         <ul class="dropdown-menu">
                             <li>
+                                {% if campagne|length > 0 %}
                                 {% for campagna in campagne %}
                                 <a class="dropdown-item" href="{{ campagna.href }}">{{ campagna.name }}</a>
                                 {% endfor %}
+                                {% else %}
+                                <a class="dropdown-item">Non partecipi a nessuna campagna</a>
+                                {% endif %}
                             </li>
                         </ul>
                     </li>

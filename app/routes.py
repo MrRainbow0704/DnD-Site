@@ -1,8 +1,8 @@
 from flask import render_template, redirect, session, url_for, flash
 import json
-from . import app, UsersDb
+from . import app, MainDb
 from .api import routes as api_routes
-from .api.functions import SQL_query
+from .api import functions
 
 
 @app.route("/")
@@ -27,23 +27,35 @@ def logout():
         return redirect(url_for("login"))
 
 
-@app.route("/profile")
-def profilo():
+@app.route("/profilo")
+def profile():
     if "Id" in session:
-        res = SQL_query(
-            UsersDb, "SELECT * FROM Users WHERE Id=?", (session["Id"],), single=True
-        )
-        return render_template("profile.html", campagne=json.loads(res["Campaign"]))
+        res = functions.get_name(MainDb, session["UserName"])
+        return render_template("profile.html", campagne=json.loads(res["Campaigns"]))
     else:
         return redirect(url_for("login"))
 
 
-@app.route("/campaign/<code>")
+@app.route("/campagna/<code>")
 def campaign(code):
     if "Id" in session:
-        res = SQL_query(
-            UsersDb, "SELECT * FROM Users WHERE Id=?", (session["Id"],), single=True
+        res = functions.SQL_query(
+            MainDb, "SELECT * FROM Users WHERE Id=?", (session["Id"],), single=True
         )
-        return render_template("campaign.html", code=code, campagne=json.loads(res["Campaign"]))
+        campagnie = json.loads(res["Campaigns"])
+        if code in campagnie:
+            CampaignDb = f"db/{code}.sqlite3"
+            res = functions.SQL_query(
+                CampaignDb,
+                "SELECT * FROM Players WHERE UserId=?",
+                (session["Id"],),
+                single=True,
+            )
+            player = json.loads(res)
+            return render_template(
+                "campaign.html", code=code, campagne=campagnie, player=player
+            )
+        else:
+            return redirect(url_for("profile"))
     else:
         return redirect(url_for("login"))

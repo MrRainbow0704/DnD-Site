@@ -39,7 +39,7 @@ def SQL_query(
                 error = True
                 res = []
                 break
-        if not error: 
+        if not error:
             res = list(map(dict, res))
     # Chiudi il cursore
     cur.close()
@@ -48,14 +48,19 @@ def SQL_query(
 
 
 def start_database(
-    dbPath: str | Path, sqlString: str, sqlParam: tuple | dict = None
+    dbPath: str | Path,
+    sqlString: str,
+    sqlParam: tuple | dict = None,
 ) -> None:
+    if sqlParam is None:
+        sqlParam = ()
     dir = Path(dbPath).resolve().parent
     if not dir.exists():
         dir.mkdir(parents=True, exist_ok=True)
         with open(dbPath, "x") as f:
             ...
-    SQL_query(dbPath, sqlString, sqlParam)
+    else:
+        SQL_query(dbPath, sqlString, sqlParam)
     return None
 
 
@@ -123,5 +128,11 @@ def hash_password(password: str) -> str:
 
 
 def verify_password(inputPwd: str, hashedPwd: str) -> bool:
-    print(f"verify_password(): {inputPwd=}", "\n", f"{hash_password(inputPwd)=}", "\n", f"{hashedPwd=}")
+    print(
+        f"verify_password(): {inputPwd=}",
+        "\n",
+        f"{hash_password(inputPwd)=}",
+        "\n",
+        f"{hashedPwd=}",
+    )
     return hash_password(inputPwd) == hashedPwd
