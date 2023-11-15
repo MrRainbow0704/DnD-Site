@@ -1,8 +1,8 @@
-from flask import render_template, redirect, session, url_for, flash
+from flask import render_template, redirect, session, url_for
 import json
-from . import app, MainDb
 from .api import routes as api_routes
-from .api import functions
+from .api import api_functions
+from . import app, MainDb, functions, DbHostName, DbUserName, DbUserPassword
 
 
 @app.route("/")
@@ -30,7 +30,7 @@ def logout():
 @app.route("/profilo")
 def profile():
     if "Id" in session:
-        res = functions.get_name(MainDb, session["UserName"])
+        res = api_functions.get_name(MainDb, session["UserName"])
         return render_template("profile.html", campagne=json.loads(res["Campaigns"]))
     else:
         return redirect(url_for("login"))
@@ -40,14 +40,16 @@ def profile():
 def campaign(code):
     if "Id" in session:
         res = functions.SQL_query(
-            MainDb, "SELECT * FROM Users WHERE Id=?", (session["Id"],), single=True
+            MainDb, "SELECT * FROM Users WHERE Id=?;", (session["Id"],), single=True
         )
         campagnie = json.loads(res["Campaigns"])
         if code in campagnie:
-            CampaignDb = f"db/{code}.sqlite3"
+            CampaignDb = functions.db_connect(
+                DbHostName, DbUserName, DbUserPassword, f"dnd_site_campaign_{code}"
+            )
             res = functions.SQL_query(
                 CampaignDb,
-                "SELECT * FROM Players WHERE UserId=?",
+                "SELECT * FROM Players WHERE UserId=?;",
                 (session["Id"],),
                 single=True,
             )
