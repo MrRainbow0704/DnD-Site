@@ -4,6 +4,17 @@ import mysql.connector as mysql
 def db_connect(
     DbHostName: str, DbUserName: str, DbUserPassword: str, DbName: str
 ) -> mysql.MySQLConnection | None:
+    """Crea e restituisce una connessione a un database già esistente.
+
+    Args:
+        DbHostName (str): IP del database.
+        DbUserName (str): Username con il quale loggare.
+        DbUserPassword (str): Password con la quale loggare.
+        DbName (str): Nome del database a cui connettersi.
+
+    Returns:
+        mysql.MySQLConnection: Connessione al database selezionato.
+    """
     connection = None
     try:
         connection = mysql.connect(
@@ -20,17 +31,18 @@ def SQL_query(
     sqlString: str,
     sqlParam: tuple | dict = None,
     single=False,
-) -> dict[str, str] | list[dict[str, str]]:
-    """Fa una richiesta al database
+) -> dict[str, str] | list[dict[str, str] | None] | None:
+    """Fa una richiesta al database e restituisce la risposta. Tutti i parametri vengono sanificati automaticamente.
 
     Args:
-        conn (mysql.MySQLConnection): Una connessione al database
-        sqlString (str): IL comando da eseguire
+        conn (mysql.MySQLConnection): Una connessione al database.
+        sqlString (str): IL comando da eseguire. Usa %s come placeholder o
+                        %(var)s se sqlParam è un dizionario con una chiave "val".
         sqlParam (tuple | dict, optional): Parametri da associare al comando. Defaults to None.
         single (bool, optional): Se ci si aspetta una singola riga. Defaults to False.
 
     Returns:
-        dict[str, str] | list[dict[str, str]]: Le/la righe/a restituite/a dalla richiesta
+        dict[str, str] | list[dict[str, str]]: Le/la righe/a restituite/a dalla richiesta.
     """
     if sqlParam is None:
         sqlParam = ()
@@ -41,7 +53,7 @@ def SQL_query(
         cur.execute(sqlString, sqlParam)
         conn.commit()
     except mysql.Error as err:
-        print(f"Error: '{err}'")
+        print(f"Error: '{err} {sqlString=} {sqlParam=}'")
     # Get all the resoults of the query
     if single:
         try:
@@ -78,9 +90,21 @@ def create_db(
     DbUserPassword: str,
     DbName: str,
 ) -> mysql.MySQLConnection:
+    """Crea un database e restituisce la connessione a esso.
+    ATTENZIONE DbName è vulnerabile a iniezioni SQL! Sanificalo.
+
+    Args:
+        DbHostName (str): IP del database.
+        DbUserName (str): Username con il quale loggare.
+        DbUserPassword (str): Password con la quale loggare.
+        DbName (str): Nome del database da creare.
+
+    Returns:
+        mysql.MySQLConnection: Connessione al database selezionato.
+    """
     try:
         conn = mysql.connect(host=DbHostName, user=DbUserName, passwd=DbUserPassword)
     except mysql.Error as err:
         print(f"Error: '{err}'")
-    SQL_query(conn, "CREATE DATABASE IF NOT EXISTS `%s`;", (DbName,))
+    SQL_query(conn, "CREATE DATABASE IF NOT EXISTS `%s`;" % DbName)
     return db_connect(DbHostName, DbUserName, DbUserPassword, DbName)

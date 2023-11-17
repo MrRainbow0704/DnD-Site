@@ -40,20 +40,26 @@ def profile():
 def campaign(code):
     if "Id" in session:
         res = functions.SQL_query(
-            MainDb, "SELECT * FROM Users WHERE Id=?;", (session["Id"],), single=True
+            MainDb, "SELECT * FROM Users WHERE Id=%s;", (session["Id"],), single=True
         )
         campagnie = json.loads(res["Campaigns"])
-        if code in campagnie:
+        campagnie_id = [x["code"] for x in campagnie]
+        if code in campagnie_id:
             CampaignDb = functions.db_connect(
                 DbHostName, DbUserName, DbUserPassword, f"dnd_site_campaign_{code}"
             )
-            res = functions.SQL_query(
-                CampaignDb,
-                "SELECT * FROM Players WHERE UserId=?;",
-                (session["Id"],),
-                single=True,
+            campagna = functions.SQL_query(
+                MainDb, "SELECT * FROM Campaigns WHERE Code=%s;", (code,), single=True
             )
-            player = json.loads(res)
+            if campagna["DungeonMaster"] == session["Id"]:
+                player = "DUNGEONMASTER"
+            else:
+                player = functions.SQL_query(
+                    CampaignDb,
+                    "SELECT * FROM Players WHERE UserId=%s;",
+                    (session["Id"],),
+                    single=True,
+                )
             return render_template(
                 "campaign.html", code=code, campagne=campagnie, player=player
             )

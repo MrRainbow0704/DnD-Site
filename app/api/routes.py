@@ -61,8 +61,8 @@ def create_campaign():
     code = uuid().hex
     functions.SQL_query(
         MainDb,
-        "INSERT INTO Campaigns (Code, DungeonMaster) VALUES (?, ?);",
-        (code, session["Id"]),
+        "INSERT INTO Campaigns (Code, CampaignName, DungeonMaster) VALUES (%s, %s, %s);",
+        (code, name, session["Id"]),
     )
     CampaignDb = functions.create_db(
         DbHostName, DbUserName, DbUserPassword, f"dnd_site_campaign_{code}"
@@ -89,6 +89,45 @@ def create_campaign():
     user = api_functions.get_name(MainDb, session["UserName"])
     if user:
         campaigns = json.loads(user["Campaigns"])
-        campaigns.append({"href": url_for("campaign", code=code), "name": name})
-        functions.SQL_query(MainDb, "INSERT INTO Users Campaigns VALUES ?;")
-    return {"code": 200, "status": url_for("campagna", code=code)}
+        campaigns.append(
+            {"href": url_for("campaign", code=code), "code": code, "name": name}
+        )
+        functions.SQL_query(
+            MainDb,
+            "UPDATE Users SET Campaigns = %s WHERE id = %s;",
+            (
+                json.dumps(campaigns),
+                session["Id"],
+            ),
+        )
+    return {"code": 200, "status": url_for("campaign", code=code)}
+
+
+@api.route("delete-campaign", methods=["POST"])
+def delete_campaign():
+    code = request.form.get("Code")
+    CampaignDb = functions.db_connect(
+        DbHostName, DbUserName, DbUserPassword, f"dnd_site_campaign_{code}"
+    )
+    # TODO espellere ogni player quando rimuovo la campagna
+    dm_id = functions.SQL_query(
+        MainDb, "SELECT * FROM Campaigns WHERE code=%s;", (code,), single=True
+    )["DungeonMaster"]
+    dm = functions.SQL_query(
+        MainDb, "SELECT * FROM Users WHERE Id=%s;", (dm_id,), single=True
+    )
+    campaigns = json.loads(dm["Campaigns"])
+    for c in campaigns:
+        if c["code"] == code:
+            campaigns.remove(c)
+    functions.SQL_query(
+        MainDb, "UPDATE Users SET Campaigns=%s;", (json.dumps(campaigns),)
+    )
+
+    functions.SQL_query(CampaignDb, "DROP DATABASE %s;", (f"dnd_site_campaign_{code}",))
+    functions.SQL_query(
+        MainDb,
+        "DELETE FROM Campaigns WHERE Code=%s;",
+        (code),
+    )
+    return {"code": 200, "status": "Campagna rimossa."}
