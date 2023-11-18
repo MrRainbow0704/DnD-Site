@@ -15,7 +15,8 @@ function delete_campaign() {
         $.ajax({
             url: "{{ url_for('api.delete_campaign')}}",
             data: {
-                'Code': "{{ code }}"
+                'Code': "{{ code }}",
+                'Token': "{{ token }}"
             },
             type: "POST",
             dataType: "json"

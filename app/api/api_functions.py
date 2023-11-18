@@ -4,7 +4,7 @@ import re as regex
 import hashlib
 import mysql.connector as mysql
 from .. import functions
-from .. import pepper
+from .. import PEPPER
 
 
 def empty_input(*args: Any) -> bool:
@@ -121,7 +121,7 @@ def hash_password(password: str) -> str:
     Returns:
         str: Password (criptata).
     """
-    hashedPassword = hashlib.sha512(str(password + pepper).encode()).hexdigest()
+    hashedPassword = hashlib.sha512(str(password + PEPPER).encode()).hexdigest()
     return hashedPassword
 
 

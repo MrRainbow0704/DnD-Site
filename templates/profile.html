@@ -31,7 +31,8 @@
             $.ajax({
                 url: "{{ url_for('api.create_campaign') }}",
                 data: {
-                    "Name": name
+                    "Name": name,
+                    'Token': "{{ token }}"
                 },
                 type: "POST",
                 dataType: "json"
@@ -59,8 +60,9 @@
             $.ajax({
                 {# url: "{{ url_for('api.join_campaign') }}", #}
                 data: {
-                'Code': code
-            },
+                    'Code': code,
+                    'Token': "{{ token }}"
+                },
                 type: "POST",
                 dataType: "json"
             })
@@ -69,7 +71,7 @@
                         let error = $('<div id="alert"></div>').text(response.status)
                         error.replaceAll("#alert", error)
                     } else if (response.code == 200) {
-                        window.location.href = response.status
+                        window.location.href = response.redirect
                     }
                 })
             .fail(function (code, status) {

@@ -21,10 +21,11 @@
         let userName = $("#username").val();
         let password = $("#password").val();
         $.ajax({
-            url: "{{ url_for('api.login') }}",
+            url: "{{ url_for('api.login') }}"
             data: {
                 'UserName': userName,
-                'Pwd': password
+                'Pwd': password,
+                'Token': "{{ token }}"
             },
             type: "POST",
             dataType: "json"

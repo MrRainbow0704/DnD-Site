@@ -7,14 +7,14 @@ from . import functions
 ROOT_PATH = Path(__name__).resolve().parent
 app = Flask(__name__, root_path=ROOT_PATH)
 app.secret_key = getenv("SECRET_KEY")
-pepper = getenv("PEPPER")
-DbHostName = getenv("HOST_NAME")
-DbUserName = getenv("USER_NAME")
-DbUserPassword = getenv("USER_PASSWORD")
-MainDb = functions.create_db(
-    DbHostName,
-    DbUserName,
-    DbUserPassword,
+PEPPER = getenv("PEPPER")
+DBHOSTNAME = getenv("HOST_NAME")
+DBUSERNAME = getenv("USER_NAME")
+DBUSERPASSWORD = getenv("USER_PASSWORD")
+MAINDB = functions.create_db(
+    DBHOSTNAME,
+    DBUSERNAME,
+    DBUSERPASSWORD,
     "dnd_site_main",
 )
 
@@ -26,7 +26,7 @@ app.register_blueprint(api_bp, url_prefix="/api")
 
 
 functions.SQL_query(
-    MainDb,
+    MAINDB,
     """CREATE TABLE IF NOT EXISTS Users (
             Id INTEGER PRIMARY KEY AUTO_INCREMENT,
             UserName VARCHAR(32) UNIQUE NOT NULL,
@@ -35,7 +35,7 @@ functions.SQL_query(
             """,
 )
 functions.SQL_query(
-    MainDb,
+    MAINDB,
     """CREATE TABLE IF NOT EXISTS Campaigns (
             Code VARCHAR(32) PRIMARY KEY,
             CampaignName TEXT NOT NULL,
