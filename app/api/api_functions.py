@@ -1,10 +1,11 @@
-from flask import session
+from flask import session, jsonify, make_response, Response
 from typing import Literal, Any
+import mysql.connector as mysql
 import re as regex
 import hashlib
-import mysql.connector as mysql
+import json
+from config import PEPPER
 from .. import functions
-from .. import PEPPER
 
 
 def empty_input(*args: Any) -> bool:
@@ -48,12 +49,12 @@ def get_name(db: mysql.MySQLConnection, name: str) -> Literal[False] | dict:
     row = functions.SQL_query(
         db, "SELECT * FROM Users WHERE UserName = %s;", (name,), single=True
     )
-    if len(row) > 0:
-        return row
+    if row:
+        return row[0]
     return False
 
 
-def create_user(db: mysql.MySQLConnection, name: str, pwd: str) -> None:
+def create_user(db: mysql.MySQLConnection, name: str, pwd: str, salt: str) -> None:
     """Crea un utente nel database criptandone la password.
 
     Args:
@@ -61,9 +62,11 @@ def create_user(db: mysql.MySQLConnection, name: str, pwd: str) -> None:
         name (str): Nome dell'utente.
         pwd (str): Password dell'utente (in chiaro).
     """
-    hashedPwd = hash_password(pwd)
+    hashedPwd = hash_password(pwd, salt)
     functions.SQL_query(
-        db, "INSERT INTO Users (UserName, Pwd) VALUES (%s, %s);", (name, hashedPwd)
+        db,
+        "INSERT INTO Users (UserName, Pwd, Salt) VALUES (%s, %s, %s);",
+        (name, hashedPwd, salt),
     )
 
 
@@ -84,7 +87,8 @@ def login_user(db: mysql.MySQLConnection, name: str, pwd: str) -> bool:
         return False
 
     pwdHashed = getNameResult["Pwd"]
-    if not verify_password(pwd, pwdHashed):
+    salt = getNameResult["Salt"]
+    if not verify_password(pwd, salt, pwdHashed):
         return False
     session["Id"] = getNameResult["Id"]
     session["UserName"] = getNameResult["UserName"]
@@ -112,7 +116,7 @@ def get_players(
         return None
 
 
-def hash_password(password: str) -> str:
+def hash_password(password: str, salt: str) -> str:
     """Cripta una password.
 
     Args:
@@ -121,11 +125,10 @@ def hash_password(password: str) -> str:
     Returns:
         str: Password (criptata).
     """
-    hashedPassword = hashlib.sha512(str(password + PEPPER).encode()).hexdigest()
-    return hashedPassword
+    return hashlib.sha512(str(salt + password + PEPPER).encode()).hexdigest()
 
 
-def verify_password(inputPwd: str, hashedPwd: str) -> bool:
+def verify_password(inputPwd: str, salt: str, hashedPwd: str) -> bool:
     """Verifica che le password corrispondano.
 
     Args:
@@ -135,4 +138,8 @@ def verify_password(inputPwd: str, hashedPwd: str) -> bool:
     Returns:
         bool: Se le password corrispondono o no.
     """
-    return hash_password(inputPwd) == hashedPwd
+    return hash_password(inputPwd, salt) == hashedPwd
+
+
+def json_response(code: int, response: Any) -> Response:
+    return make_response(jsonify(response), code)

@@ -1,9 +1,10 @@
-from flask import render_template, redirect, session, url_for
+from flask import render_template, redirect, session, url_for, abort
 import json
+import config
 from uuid import uuid4
 from .api import routes as api_routes
 from .api import api_functions
-from . import app, functions, MAINDB, DBHOSTNAME, DBUSERNAME, DBUSERPASSWORD
+from . import app, functions, MAINDB
 
 
 @app.route("/")
@@ -28,7 +29,7 @@ def login():
 def logout():
     if "Id" in session:
         api_routes.logout()
-        return redirect(url_for("login"), token=session["Token"])
+        return redirect(url_for("login"))
 
 
 @app.route("/profilo")
@@ -52,15 +53,28 @@ def campaign(code):
         res = functions.SQL_query(
             MAINDB, "SELECT * FROM Users WHERE Id=%s;", (session["Id"],), single=True
         )
+        if not res:
+            abort(500, description="SQL query faliure.")
+
         campagnie = json.loads(res["Campaigns"])
         campagnie_id = [x["code"] for x in campagnie]
         if code in campagnie_id:
             CampaignDb = functions.db_connect(
-                DBHOSTNAME, DBUSERNAME, DBUSERPASSWORD, f"dnd_site_campaign_{code}"
+                config.DB_HOST_NAME,
+                config.DB_HOST_PORT,
+                config.DB_USER_NAME,
+                config.DB_USER_PASSWORD,
+                f"dnd_site_campaign_{code}",
             )
+            if not CampaignDb:
+                abort(500, description="Database connection faliure (CampaignDb).")
+
             campagna = functions.SQL_query(
                 MAINDB, "SELECT * FROM Campaigns WHERE Code=%s;", (code,), single=True
             )
+            if not campagna:
+                abort(500, description="SQL query faliure.")
+
             if campagna["DungeonMaster"] == session["Id"]:
                 player = "DUNGEONMASTER"
             else:
@@ -70,6 +84,8 @@ def campaign(code):
                     (session["Id"],),
                     single=True,
                 )
+                if not player:
+                    abort(500, description="SQL query faliure.")
             return render_template(
                 "campaign.html",
                 code=code,

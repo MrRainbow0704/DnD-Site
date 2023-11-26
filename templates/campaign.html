@@ -8,7 +8,9 @@
 {% if player == "DUNGEONMASTER" %}
 <button type="button" onclick="delete_campaign()">Elimina campagna</button>
 {% endif %}
+{% endblock main %}
 
+{% block script %}
 <script>
 function delete_campaign() {
     if (confirm("Sei sicuro di voler cancellare la campagna? Non potrai tornare indietro.")) {
@@ -37,4 +39,4 @@ function delete_campaign() {
     }
 }
 </script>
-{% endblock main %}
+{% endblock script %}

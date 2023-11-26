@@ -20,7 +20,9 @@
     <input type="text" name="nome" id="nome" placeholder="Nome campagna...">
     <button type="button" onclick="create_campaign()">Crea una nuova campagna!</button>
 </form>
+{% endblock main %}
 
+{% block script %}
 <script>
     function create_campaign() {
         let name = $("#nome").val();
@@ -42,7 +44,7 @@
                         let error = $('<div id="alert"></div>').text(JSON.stringify(response.status))
                         error.replaceAll("#alert", error)
                     } else if (response.code == 200) {
-                        window.location.href = response.status
+                        window.location.href = response.redirect
                     }
                 })
                 .fail(function (code, status) {
@@ -81,4 +83,4 @@
     }
     }
 </script>
-{% endblock main %}
+{% endblock script %}

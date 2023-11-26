@@ -1,13 +1,15 @@
 import mysql.connector as mysql
+from typing import Literal
 
 
 def db_connect(
-    DbHostName: str, DbUserName: str, DbUserPassword: str, DbName: str
+    DbHostName: str, DbHostPort: int, DbUserName: str, DbUserPassword: str, DbName: str
 ) -> mysql.MySQLConnection | None:
     """Crea e restituisce una connessione a un database già esistente.
 
     Args:
         DbHostName (str): IP del database.
+        DbHostPort (int): Porta del database.
         DbUserName (str): Username con il quale loggare.
         DbUserPassword (str): Password con la quale loggare.
         DbName (str): Nome del database a cui connettersi.
@@ -15,10 +17,14 @@ def db_connect(
     Returns:
         mysql.MySQLConnection: Connessione al database selezionato.
     """
-    connection = None
+    connection = False
     try:
         connection = mysql.connect(
-            host=DbHostName, user=DbUserName, passwd=DbUserPassword, database=DbName
+            host=DbHostName,
+            port=DbHostPort,
+            user=DbUserName,
+            passwd=DbUserPassword,
+            database=DbName,
         )
     except mysql.Error as err:
         print(f"Error: '{err}'")
@@ -31,7 +37,7 @@ def SQL_query(
     sqlString: str,
     sqlParam: tuple | dict = None,
     single=False,
-) -> dict[str, str] | list[dict[str, str] | None] | None:
+) -> dict[str, str] | list[dict[str, str] | None] | None | Literal[False]:
     """Fa una richiesta al database e restituisce la risposta. Tutti i parametri vengono sanificati automaticamente.
 
     Args:
@@ -42,7 +48,8 @@ def SQL_query(
         single (bool, optional): Se ci si aspetta una singola riga. Defaults to False.
 
     Returns:
-        dict[str, str] | list[dict[str, str]]: Le/la righe/a restituite/a dalla richiesta.
+        dict[str, str] | list[dict[str, str] | None] | None | False : Le/la righe/a restituite/a dalla
+                                richiesta, False se la richiesta fallisce.
     """
     if sqlParam is None:
         sqlParam = ()
@@ -51,41 +58,37 @@ def SQL_query(
     # Esegui la query aggiornando il database
     try:
         cur.execute(sqlString, sqlParam)
-        conn.commit()
+        if (
+            sqlString.count("INSERT")
+            or sqlString.count("UPDATE")
+            or sqlString.count("DELETE")
+        ):
+            conn.commit()
     except mysql.Error as err:
         print(f"Error: '{err} {sqlString=} {sqlParam=}'")
-    # Get all the resoults of the query
-    if single:
-        try:
-            res = cur.fetchone()
-        except mysql.Error as err:
-            print(f"Error: '{err}'")
-            res = None
-        if res is None:
-            res = {}
-        else:
-            res = dict(res)
-    else:
-        try:
-            res = cur.fetchall()
-        except mysql.Error as err:
-            print(f"Error: '{err}'")
-            res = [None]
-        error = False
-        for row in res:
-            if row is None:
-                error = True
-                res = []
-                break
-        if not error:
-            res = list(map(dict, res))
+        conn.rollback()
+        return False
+
+    # Ottieni i risultati della query.
+    try:
+        res = cur.fetchall()
+    except mysql.Error as err:
+        print(f"Error: '{err}'")
+        res = [None]
+
+    # if single:
+    #     res = res[0]
+
     # Chiudi il cursore
+    print(res)
+    cur.reset()
     cur.close()
     return res
 
 
 def create_db(
     DbHostName: str,
+    DbUserPort: int,
     DbUserName: str,
     DbUserPassword: str,
     DbName: str,
@@ -95,6 +98,7 @@ def create_db(
 
     Args:
         DbHostName (str): IP del database.
+        DbHostPort (int): Porta del database.
         DbUserName (str): Username con il quale loggare.
         DbUserPassword (str): Password con la quale loggare.
         DbName (str): Nome del database da creare.
@@ -103,8 +107,11 @@ def create_db(
         mysql.MySQLConnection: Connessione al database selezionato.
     """
     try:
-        conn = mysql.connect(host=DbHostName, user=DbUserName, passwd=DbUserPassword)
+        conn = mysql.connect(
+            host=DbHostName, port=DbUserPort, user=DbUserName, passwd=DbUserPassword
+        )
     except mysql.Error as err:
+        conn = False
         print(f"Error: '{err}'")
     SQL_query(conn, "CREATE DATABASE IF NOT EXISTS `%s`;" % DbName)
-    return db_connect(DbHostName, DbUserName, DbUserPassword, DbName)
+    return db_connect(DbHostName, DbUserPort, DbUserName, DbUserPassword, DbName)
