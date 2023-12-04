@@ -44,8 +44,7 @@
             })
             .fail(function (data, errType) {
                 console.log(data)
-                let error = $('<div id="alert">d/div>').text('There was an error processing your request! Code: '+data.status+": "+data.statusText+". Error Type: "+errType+". Description: "+data.responseJSON.description);
-                error.replaceAll("#alert", error)
+                error_message(data, errType)
             });
     }
 </script>

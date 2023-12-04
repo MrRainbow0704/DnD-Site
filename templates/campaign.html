@@ -4,6 +4,7 @@
 
 {% block main %}
 <h1>Campagna</h1>
+
 {{ code }}
 {% if player == "DUNGEONMASTER" %}
 <button type="button" onclick="delete_campaign()">Elimina campagna</button>
@@ -12,31 +13,27 @@
 
 {% block script %}
 <script>
-function delete_campaign() {
-    if (confirm("Sei sicuro di voler cancellare la campagna? Non potrai tornare indietro.")) {
-        $.ajax({
-            url: "{{ url_for('api.delete_campaign')}}",
-            data: {
-                'Code': "{{ code }}",
-                'Token': "{{ token }}"
-            },
-            type: "POST",
-            dataType: "json"
-        })
-        .done(function (response) {
-            if (response.code == 401) {
-                let error = $('<div id="alert"></div>').text(response.status)
-                error.replaceAll("#alert", error)
-            } else if (response.code == 200) {
-                alert("La tua campagna è stata cancellata!")
-                window.location.href = "{{ url_for('profile') }}"
-            }
-        })
-        .fail(function (code, status) {
-            let error = $('<div id="alert">d/div>').text('There was an error processing your request:' + code + ' : ' + JSON.stringify(status));
-            error.replaceAll("#alert", error)
-        })
+    function delete_campaign() {
+        if (confirm("Sei sicuro di voler cancellare la campagna? Non potrai tornare indietro.")) {
+            $.ajax({
+                url: "{{ url_for('api.delete_campaign')}}",
+                data: {
+                    'Code': "{{ code }}",
+                    'Token': "{{ token }}"
+                },
+                type: "POST",
+                dataType: "json"
+            })
+                .done(function (response) {
+                    console.log(response)
+                    alert("La tua campagna è stata cancellata!")
+                    window.location.href = "{{ url_for('profile') }}"
+                })
+                .fail(function (data, errType) {
+                    console.log(data)
+                    error_message(data, errType)
+                })
+        }
     }
-}
 </script>
 {% endblock script %}

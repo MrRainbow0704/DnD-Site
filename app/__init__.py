@@ -15,7 +15,7 @@ MAINDB = functions.create_db(
     config.DB_USER_PASSWORD,
     "dnd_site_main",
 )
-if not MAINDB:
+if MAINDB == False:
     quit("Database connection faliure. (MainDB)")
 
 

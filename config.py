@@ -4,7 +4,7 @@ from os import getenv
 
 
 # Main dir path
-ROOT_PATH = Path(__name__).resolve().parent
+ROOT_PATH = Path(__file__).resolve().parent
 
 # Secrets from .env
 if load_dotenv():

@@ -13,21 +13,23 @@ def sign_in():
         userName = request.form.get("UserName")
         pwd = request.form.get("Pwd")
         pwdRepeat = request.form.get("PwdRepeat")
-
+    
         if api_functions.empty_input(userName, pwd, pwdRepeat):
             return jsonify(description="Empty input."), 400
-
+    
         if api_functions.invalid_name(userName):
             return jsonify(description="Invalid name."), 400
-
+    
         if pwd != pwdRepeat:
             return jsonify(description="Password don't match."), 400
-
+    
         if api_functions.get_name(MAINDB, userName):
             return jsonify(description="Username already in use."), 400
-
+    
         salt = uuid().hex
-        api_functions.create_user(MAINDB, userName, pwd, salt)
+        if not api_functions.create_user(MAINDB, userName, pwd, salt):
+            return jsonify(description="User creation failed."), 500
+        
         if api_functions.login_user(MAINDB, userName, pwd):
             return jsonify(description="Sign-in successful."), 200
         else:
@@ -79,10 +81,13 @@ def create_campaign():
         if request.form.get("Token") == session["Token"]:
             name = request.form.get("Name")
             code = uuid().hex
-            if not functions.SQL_query(
-                MAINDB,
-                "INSERT INTO Campaigns (Code, CampaignName, DungeonMaster) VALUES (%s, %s, %s);",
-                (code, name, session["Id"]),
+            if (
+                functions.SQL_query(
+                    MAINDB,
+                    "INSERT INTO Campaigns (Code, CampaignName, DungeonMaster) VALUES (%s, %s, %s);",
+                    (code, name, session["Id"]),
+                )
+                == False
             ):
                 return jsonify(description="SQL query faliure."), 500
 
@@ -93,15 +98,16 @@ def create_campaign():
                 config.DB_USER_PASSWORD,
                 f"dnd_site_campaign_{code}",
             )
-            if not CampaignDb:
+            if CampaignDb == False:
                 return (
                     jsonify(description="Database connection faliure (CampaignDb)."),
                     500,
                 )
 
-            if not functions.SQL_query(
-                CampaignDb,
-                """CREATE TABLE IF NOT EXISTS Players (
+            if (
+                functions.SQL_query(
+                    CampaignDb,
+                    """CREATE TABLE IF NOT EXISTS Players (
                     UserId INTEGER PRIMARY KEY,
                     Name TEXT UNIQUE NOT NULL,
                     Dmg INTEGER DEFAULT 0,
@@ -117,6 +123,8 @@ def create_campaign():
                     Stats TEXT DEFAULT '{}'
                     );
                     """,
+                )
+                == False
             ):
                 return jsonify(description="SQL query faliure."), 500
 
@@ -126,13 +134,16 @@ def create_campaign():
                 campaigns.append(
                     {"href": url_for("campaign", code=code), "code": code, "name": name}
                 )
-                if not functions.SQL_query(
-                    MAINDB,
-                    "UPDATE Users SET Campaigns = %s WHERE id = %s;",
-                    (
-                        json.dumps(campaigns),
-                        session["Id"],
-                    ),
+                if (
+                    functions.SQL_query(
+                        MAINDB,
+                        "UPDATE Users SET Campaigns = %s WHERE id = %s;",
+                        (
+                            json.dumps(campaigns),
+                            session["Id"],
+                        ),
+                    )
+                    == False
                 ):
                     return jsonify(description="SQL query faliure."), 500
 
@@ -161,45 +172,79 @@ def delete_campaign():
                 config.DB_USER_PASSWORD,
                 f"dnd_site_campaign_{code}",
             )
-            if not CampaignDb:
-                return jsonify(description="Database connection faliure (CampaignDb)."), 500
+            if CampaignDb == False:
+                return (
+                    jsonify(description="Database connection faliure (CampaignDb)."),
+                    500,
+                )
 
-            # TODO espellere ogni player quando rimuovo la campagna
+            players = functions.SQL_query(CampaignDb, "SELECT * FROM Players;")
+            if players == False:
+                return jsonify(description="SQL query faliure."), 500
+            for player in players:
+                player_data = functions.SQL_query(
+                    MAINDB,
+                    "SELECT * FROM Users WHERE Id=%s;",
+                    (player["Id"],),
+                    single=True,
+                )
+                if player_data == False:
+                    return jsonify(description="SQL query faliure."), 500
+                campaigns = json.loads(player_data["Campaigns"])
+                for c in campaigns:
+                    if c["code"] == code:
+                        campaigns.remove(c)
+                if (
+                    functions.SQL_query(
+                        MAINDB,
+                        "UPDATE Users SET Campaigns=%s WHERE Id=%s;",
+                        (json.dumps(campaigns), player["Id"]),
+                    )
+                    == False
+                ):
+                    return jsonify(description="SQL query faliure."), 500
+
             dm_id = functions.SQL_query(
                 MAINDB, "SELECT * FROM Campaigns WHERE Code=%s;", (code,), single=True
             )
-            if not dm_id:
+            if dm_id == False:
                 return jsonify(description="SQL query faliure."), 500
-            dm_id = dm_id["DungeonMaster"]
+            dm_id = int(dm_id["DungeonMaster"])
             dm = functions.SQL_query(
                 MAINDB, "SELECT * FROM Users WHERE Id=%s;", (dm_id,), single=True
             )
-            if not dm:
-                return jsonify(description="SQL query faliure."), 500
-            players_id = functions.SQL_query(
-                MAINDB, "SELECT * FROM CAmpaigns WHERE Code=%s;", (code,)
-            )
-            if not players_id:
+            if dm == False:
                 return jsonify(description="SQL query faliure."), 500
             campaigns = json.loads(dm["Campaigns"])
             for c in campaigns:
                 if c["code"] == code:
                     campaigns.remove(c)
 
-            if not functions.SQL_query(
-                MAINDB, "UPDATE Users SET Campaigns=%s;", (json.dumps(campaigns),)
+            if (
+                functions.SQL_query(
+                    MAINDB,
+                    "UPDATE Users SET Campaigns=%s WHERE Id=%s;",
+                    (json.dumps(campaigns), dm_id),
+                )
+                == False
             ):
                 return jsonify(description="SQL query faliure."), 500
 
-            if not functions.SQL_query(
-                CampaignDb, "DROP DATABASE %s;", (f"dnd_site_campaign_{code}",)
+            if (
+                functions.SQL_query(
+                    CampaignDb, "DROP DATABASE %s;", (f"dnd_site_campaign_{code}",)
+                )
+                == False
             ):
                 return jsonify(description="SQL query faliure."), 500
 
-            if not functions.SQL_query(
-                MAINDB,
-                "DELETE FROM Campaigns WHERE Code=%s;",
-                (code),
+            if (
+                functions.SQL_query(
+                    MAINDB,
+                    "DELETE FROM Campaigns WHERE Code=%s;",
+                    (code),
+                )
+                == False
             ):
                 return jsonify(description="SQL query faliure."), 500
 

@@ -17,6 +17,8 @@ def db_connect(
     Returns:
         mysql.MySQLConnection: Connessione al database selezionato.
     """
+    
+    # Prova a stabilire una connessione con il database, se fallisce restituisce False
     connection = False
     try:
         connection = mysql.connect(
@@ -51,11 +53,14 @@ def SQL_query(
         dict[str, str] | list[dict[str, str] | None] | None | False : Le/la righe/a restituite/a dalla
                                 richiesta, False se la richiesta fallisce.
     """
+
     if sqlParam is None:
         sqlParam = ()
-    # Inizializza il cursore
+    
     cur = conn.cursor(dictionary=True)
-    # Esegui la query aggiornando il database
+
+    # Esegui la query aggiornando il database se necessario
+    # Se la query fallisce, fa il rollback e restituisce False
     try:
         cur.execute(sqlString, sqlParam)
         if (
@@ -65,22 +70,25 @@ def SQL_query(
         ):
             conn.commit()
     except mysql.Error as err:
-        print(f"Error: '{err} {sqlString=} {sqlParam=}'")
+        print(f"Error: '{err}\nParameteri: {sqlString=} {sqlParam=}'")
         conn.rollback()
         return False
 
-    # Ottieni i risultati della query.
+    # Ottieni i risultati della query svuotando anche il buffer
     try:
         res = cur.fetchall()
     except mysql.Error as err:
         print(f"Error: '{err}'")
         res = [None]
+    
+    # Gestisci le query singole per non avere liste con un unico indice
+    if single:
+        try:
+            res = res[0]
+        except IndexError:
+            res = []
 
-    # if single:
-    #     res = res[0]
-
-    # Chiudi il cursore
-    print(res)
+    # Chiudi il cursore e restituisci il risultato della query
     cur.reset()
     cur.close()
     return res
@@ -92,7 +100,7 @@ def create_db(
     DbUserName: str,
     DbUserPassword: str,
     DbName: str,
-) -> mysql.MySQLConnection:
+) -> mysql.MySQLConnection | Literal[False]:
     """Crea un database e restituisce la connessione a esso.
     ATTENZIONE DbName è vulnerabile a iniezioni SQL! Sanificalo.
 
@@ -104,14 +112,19 @@ def create_db(
         DbName (str): Nome del database da creare.
 
     Returns:
-        mysql.MySQLConnection: Connessione al database selezionato.
+        mysql.MySQLConnection | Literal[False]: Connessione al database selezionato, false se fallisce.
     """
+
+    # Prova a creare una connessione a un database senza specificare la tabella.
+    # Se va a buon fine, crea la tabella richiesta e restituisci una connessione al database
+    # altrimenti restituisci false
     try:
         conn = mysql.connect(
             host=DbHostName, port=DbUserPort, user=DbUserName, passwd=DbUserPassword
         )
     except mysql.Error as err:
-        conn = False
         print(f"Error: '{err}'")
-    SQL_query(conn, "CREATE DATABASE IF NOT EXISTS `%s`;" % DbName)
-    return db_connect(DbHostName, DbUserPort, DbUserName, DbUserPassword, DbName)
+        return False
+    else:
+        SQL_query(conn, "CREATE DATABASE IF NOT EXISTS `%s`;" % DbName)
+        return db_connect(DbHostName, DbUserPort, DbUserName, DbUserPassword, DbName)

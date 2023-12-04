@@ -1,4 +1,4 @@
-from flask import session, jsonify, make_response, Response
+from flask import session, jsonify, make_response, Response, sessions
 from typing import Literal, Any
 import mysql.connector as mysql
 import re as regex
@@ -16,6 +16,8 @@ def empty_input(*args: Any) -> bool:
     Returns:
         bool: Se il valore è vuoto o no.
     """
+
+    # Controlla per ogni elemento se è vuoto
     for i in args:
         if not bool(i) and type(i) != int:
             return True
@@ -31,6 +33,9 @@ def invalid_name(name: str) -> bool:
     Returns:
         bool: Se il nome è valido o no.
     """
+
+    # Controlla se il nome contione solo lettere, numeri o _
+    # e se ha una lunghezza tra i 4 e i 32 caratteri
     if not regex.match(r"^[a-zA-Z0-9_]{4,32}$", name):
         return True
     return False
@@ -46,28 +51,43 @@ def get_name(db: mysql.MySQLConnection, name: str) -> Literal[False] | dict:
     Returns:
         Literal[False] | dict: Un dizionario rappresentante la riga. Se non trova nulla False.
     """
+
+    # Chiede al database tutte le righe della tabella `Users` che hanno il nome indicato
     row = functions.SQL_query(
         db, "SELECT * FROM Users WHERE UserName = %s;", (name,), single=True
     )
     if row:
-        return row[0]
+        return row
     return False
 
 
-def create_user(db: mysql.MySQLConnection, name: str, pwd: str, salt: str) -> None:
+def create_user(db: mysql.MySQLConnection, name: str, pwd: str, salt: str) -> bool:
     """Crea un utente nel database criptandone la password.
 
     Args:
         db (mysql.MySQLConnection): Connessione a un database.
         name (str): Nome dell'utente.
         pwd (str): Password dell'utente (in chiaro).
+
+    Returns:
+        bool: Se la funzione ha funzionato correttamente.
     """
+
+    # Cripta la password
     hashedPwd = hash_password(pwd, salt)
-    functions.SQL_query(
-        db,
-        "INSERT INTO Users (UserName, Pwd, Salt) VALUES (%s, %s, %s);",
-        (name, hashedPwd, salt),
-    )
+
+    # Inserisce i dati all'interno del database nella tabella `Users` e controlla se va a buon fine
+    if (
+        functions.SQL_query(
+            db,
+            "INSERT INTO Users (UserName, Pwd, Salt) VALUES (%s, %s, %s);",
+            (name, hashedPwd, salt),
+        )
+        == False
+    ):
+        return False
+    else:
+        return True
 
 
 def login_user(db: mysql.MySQLConnection, name: str, pwd: str) -> bool:
@@ -81,39 +101,24 @@ def login_user(db: mysql.MySQLConnection, name: str, pwd: str) -> bool:
     Returns:
         bool: Se l'operazione è andata a buon fine o no.
     """
+    
+    # Ottieni il profilo dell'utente attraverso il nume
     getNameResult = get_name(db, name)
 
+    # Controlla che l'utente esista
     if not getNameResult:
         return False
 
+    # Cripta la password inserita e confrontala con quella presente nel database
     pwdHashed = getNameResult["Pwd"]
     salt = getNameResult["Salt"]
     if not verify_password(pwd, salt, pwdHashed):
         return False
+    
+    # Se tutto va a buon fine, inizia una muova sessione
     session["Id"] = getNameResult["Id"]
     session["UserName"] = getNameResult["UserName"]
     return True
-
-
-def get_players(
-    db: mysql.MySQLConnection, campaign: str
-) -> list[dict[str, str]] | None:
-    """WIP Restituisce le righe di tutti i giocatori che partecipano a una certa campagna.
-
-    Args:
-        db (mysql.MySQLConnection): Connessione a un database.
-        campaign (str): Codice della campagna.
-
-    Returns:
-        list[dict[str, str]] | None: Una lista di dizionari rappresentante le righe. Se non trova nulla None.
-    """
-    result = functions.SQL_query(
-        db, "SELECT * FROM Users WHERE Campaign=%s;", (campaign,)
-    )
-    if result:
-        return result
-    else:
-        return None
 
 
 def hash_password(password: str, salt: str) -> str:
@@ -125,6 +130,8 @@ def hash_password(password: str, salt: str) -> str:
     Returns:
         str: Password (criptata).
     """
+    
+    # Cripta la password usando sha512
     return hashlib.sha512(str(salt + password + PEPPER).encode()).hexdigest()
 
 
@@ -138,8 +145,6 @@ def verify_password(inputPwd: str, salt: str, hashedPwd: str) -> bool:
     Returns:
         bool: Se le password corrispondono o no.
     """
+
+    # Verifica che le password corrispondano confrontandone gli hash
     return hash_password(inputPwd, salt) == hashedPwd
-
-
-def json_response(code: int, response: Any) -> Response:
-    return make_response(jsonify(response), code)
