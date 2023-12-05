@@ -1,13 +1,14 @@
 """Il modulo che contiene l'applicazione principale."""
 
 from flask import Flask
-from pathlib import Path
 import config
 from . import functions
 
+# Crea l'applicazione e inposta la secret key
 app = Flask(__name__, root_path=config.ROOT_PATH)
 app.secret_key = config.SECRET_KEY
 
+# Inizializza la connessione al database principale, esci dal programma in caso di fallimento
 MAINDB = functions.create_db(
     config.DB_HOST_NAME,
     config.DB_HOST_PORT,
@@ -22,9 +23,10 @@ if MAINDB == False:
 from . import routes
 from .api import bp as api_bp
 
+# Registra la blueprint per API
 app.register_blueprint(api_bp, url_prefix="/api")
 
-
+# Crea le tabelle `Users` e `Campaigns` dentro il database principale
 functions.SQL_query(
     MAINDB,
     """CREATE TABLE IF NOT EXISTS Users (

@@ -1,9 +1,8 @@
-from flask import session, jsonify, make_response, Response, sessions
+from flask import session
 from typing import Literal, Any
 import mysql.connector as mysql
 import re as regex
 import hashlib
-import json
 from config import PEPPER
 from .. import functions
 

@@ -1,3 +1,5 @@
-import app
+from app import app
+import config
 
-app.app.run(debug=True)
+if __name__ == "__main__":
+    app.run(host=config.HOST, port=config.PORT, debug=config.DEBUG)

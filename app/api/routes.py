@@ -10,46 +10,75 @@ from .. import MAINDB, functions
 @api.route("/sign-in", methods=["POST"])
 def sign_in():
     try:
+        # Ottieni tutti i valori dalla POST request
         userName = request.form.get("UserName")
         pwd = request.form.get("Pwd")
         pwdRepeat = request.form.get("PwdRepeat")
-    
+
+        # Controlla che nessuno dei valori di input sia vuoto
         if api_functions.empty_input(userName, pwd, pwdRepeat):
             return jsonify(description="Empty input."), 400
-    
+
+        # Controlla che il nome sia valido
         if api_functions.invalid_name(userName):
             return jsonify(description="Invalid name."), 400
-    
+
+        # Controlla che le password siano uguali
         if pwd != pwdRepeat:
             return jsonify(description="Password don't match."), 400
-    
+
+        # Controlla che non ci siano già utenti con lo stesso nome
         if api_functions.get_name(MAINDB, userName):
             return jsonify(description="Username already in use."), 400
-    
+
+        # Genera un nuovo salt e poi prova a creare un nuovo account
         salt = uuid().hex
         if not api_functions.create_user(MAINDB, userName, pwd, salt):
-            return jsonify(description="User creation failed."), 500
-        
+            return (
+                jsonify(
+                    description="User creation failed.",
+                    info="Error at: app/api/routes@sign_in()",
+                ),
+                500,
+            )
+
+        # Prova a loggare l'utente nell'account appena creato
         if api_functions.login_user(MAINDB, userName, pwd):
             return jsonify(description="Sign-in successful."), 200
-        else:
-            return jsonify(description="Login failed."), 500
+        return (
+            jsonify(
+                description="Login failed.", info="Error at: app/api/routes@sign_in()"
+            ),
+            500,
+        )
     except Exception as e:
-        return jsonify(description=f"An exception has occured: {e}"), 500
+        return (
+            jsonify(
+                description=f"An exception has occured: {e}",
+                info="Error at: app/api/routes@sign_in()",
+            ),
+            500,
+        )
 
 
 @api.route("/login", methods=["POST"])
 def login():
     try:
+        # Controlla che la richiesta venga da una fonte confermata
         if request.form.get("Token") == session["Token"]:
+            # Ottieni tutti i valori dalla POST request
             userName = request.form.get("UserName")
             pwd = request.form.get("Pwd")
+
+            # Controlla che nessuno dei valori di input sia vuoto
             if api_functions.empty_input(userName, pwd):
                 return jsonify(description="Empty input."), 400
 
+            # Controlla che il nome sia valido
             if api_functions.invalid_name(userName):
                 return jsonify(description="Invalid name."), 400
 
+            # Controlla che l'utente esista e prendine la password e il salt
             res = api_functions.get_name(MAINDB, userName)
             if res:
                 pwdHashed = res["Pwd"]
@@ -57,19 +86,32 @@ def login():
             else:
                 return jsonify(description="User does not exist."), 400
 
+            # Verifica che le password corrispondono
             if not api_functions.verify_password(pwd, salt, pwdHashed):
                 return jsonify(description="Wrong Login."), 400
 
+            # Prova a loggare l'utente
             if api_functions.login_user(MAINDB, userName, pwd):
                 return jsonify(description="Login successful."), 200
-            return jsonify(description="Login failed."), 500
+            return (
+                jsonify(
+                    description="Login failed.", info="Error at: app/api/routes@login()"
+                ),
+                500,
+            )
         else:
             return jsonify(description="Token non valido."), 403
     except Exception as e:
-        return jsonify(description=f"An exception has occured: {e}"), 500
+        return (
+            jsonify(
+                description=f"An exception has occured: {e}",
+                info="Error at: app/api/routes@login()",
+            ),
+            500,
+        )
 
 
-@api.route("/logout", methods=["POST"])
+@api.route("/logout/", methods=["POST"])
 def logout():
     session.clear()
     return jsonify(description="Logout successful."), 200
@@ -89,7 +131,13 @@ def create_campaign():
                 )
                 == False
             ):
-                return jsonify(description="SQL query faliure."), 500
+                return (
+                    jsonify(
+                        description="SQL query faliure.",
+                        info="Error at: app/api/routes@create_campaign() #1 SQL query",
+                    ),
+                    500,
+                )
 
             CampaignDb = functions.create_db(
                 config.DB_HOST_NAME,
@@ -100,7 +148,10 @@ def create_campaign():
             )
             if CampaignDb == False:
                 return (
-                    jsonify(description="Database connection faliure (CampaignDb)."),
+                    jsonify(
+                        description="Database connection faliure (CampaignDb).",
+                        info="Error at: app/api/routes@create_campaign() #1 database connection",
+                    ),
                     500,
                 )
 
@@ -126,7 +177,13 @@ def create_campaign():
                 )
                 == False
             ):
-                return jsonify(description="SQL query faliure."), 500
+                return (
+                    jsonify(
+                        description="SQL query faliure.",
+                        info="Error at: app/api/routes@create_campaign() #2 SQL query",
+                    ),
+                    500,
+                )
 
             user = api_functions.get_name(MAINDB, session["UserName"])
             if user:
@@ -145,7 +202,13 @@ def create_campaign():
                     )
                     == False
                 ):
-                    return jsonify(description="SQL query faliure."), 500
+                    return (
+                        jsonify(
+                            description="SQL query faliure.",
+                            info="Error at: app/api/routes@create_campaign() #3 SQL query",
+                        ),
+                        500,
+                    )
 
             return (
                 jsonify(
@@ -157,10 +220,16 @@ def create_campaign():
         else:
             return jsonify(description="Token non valido."), 403
     except Exception as e:
-        return jsonify(description=f"An exception has occured: {e}"), 500
+        return (
+            jsonify(
+                description=f"An exception has occured: {e}",
+                info="Error at: app/api/routes@create_campaign()",
+            ),
+            500,
+        )
 
 
-@api.route("delete-campaign", methods=["POST"])
+@api.route("/delete-campaign", methods=["POST"])
 def delete_campaign():
     try:
         if request.form.get("Token") == session["Token"]:
@@ -174,13 +243,22 @@ def delete_campaign():
             )
             if CampaignDb == False:
                 return (
-                    jsonify(description="Database connection faliure (CampaignDb)."),
+                    jsonify(
+                        description="Database connection faliure (CampaignDb).",
+                        info="Error at: app/api/routes@delete_campaign() #1 database connection",
+                    ),
                     500,
                 )
 
             players = functions.SQL_query(CampaignDb, "SELECT * FROM Players;")
             if players == False:
-                return jsonify(description="SQL query faliure."), 500
+                return (
+                    jsonify(
+                        description="SQL query faliure.",
+                        info="Error at: app/api/routes@delete_campaign() #1 SQL query",
+                    ),
+                    500,
+                )
             for player in players:
                 player_data = functions.SQL_query(
                     MAINDB,
@@ -189,7 +267,13 @@ def delete_campaign():
                     single=True,
                 )
                 if player_data == False:
-                    return jsonify(description="SQL query faliure."), 500
+                    return (
+                        jsonify(
+                            description="SQL query faliure.",
+                            info="Error at: app/api/routes@delete_campaign() #2 SQL query",
+                        ),
+                        500,
+                    )
                 campaigns = json.loads(player_data["Campaigns"])
                 for c in campaigns:
                     if c["code"] == code:
@@ -202,19 +286,37 @@ def delete_campaign():
                     )
                     == False
                 ):
-                    return jsonify(description="SQL query faliure."), 500
+                    return (
+                        jsonify(
+                            description="SQL query faliure.",
+                            info="Error at: app/api/routes@delete_campaign() #3 SQL query",
+                        ),
+                        500,
+                    )
 
             dm_id = functions.SQL_query(
                 MAINDB, "SELECT * FROM Campaigns WHERE Code=%s;", (code,), single=True
             )
             if dm_id == False:
-                return jsonify(description="SQL query faliure."), 500
+                return (
+                    jsonify(
+                        description="SQL query faliure.",
+                        info="Error at: app/api/routes@delete_campaign() #4 SQL query",
+                    ),
+                    500,
+                )
             dm_id = int(dm_id["DungeonMaster"])
             dm = functions.SQL_query(
                 MAINDB, "SELECT * FROM Users WHERE Id=%s;", (dm_id,), single=True
             )
             if dm == False:
-                return jsonify(description="SQL query faliure."), 500
+                return (
+                    jsonify(
+                        description="SQL query faliure.",
+                        info="Error at: app/api/routes@delete_campaign() #5 SQL query",
+                    ),
+                    500,
+                )
             campaigns = json.loads(dm["Campaigns"])
             for c in campaigns:
                 if c["code"] == code:
@@ -228,7 +330,13 @@ def delete_campaign():
                 )
                 == False
             ):
-                return jsonify(description="SQL query faliure."), 500
+                return (
+                    jsonify(
+                        description="SQL query faliure.",
+                        info="Error at: app/api/routes@delete_campaign() #6 SQL query",
+                    ),
+                    500,
+                )
 
             if (
                 functions.SQL_query(
@@ -236,7 +344,13 @@ def delete_campaign():
                 )
                 == False
             ):
-                return jsonify(description="SQL query faliure."), 500
+                return (
+                    jsonify(
+                        description="SQL query faliure.",
+                        info="Error at: app/api/routes@delete_campaign() #7 SQL query",
+                    ),
+                    500,
+                )
 
             if (
                 functions.SQL_query(
@@ -246,10 +360,22 @@ def delete_campaign():
                 )
                 == False
             ):
-                return jsonify(description="SQL query faliure."), 500
+                return (
+                    jsonify(
+                        description="SQL query faliure.",
+                        info="Error at: app/api/routes@delete_campaign() #8 SQL query",
+                    ),
+                    500,
+                )
 
             return jsonify(description="Campagna rimossa."), 200
         else:
             return jsonify(description="Token non valido."), 403
     except Exception as e:
-        return jsonify(description=f"An exception has occured: {e}"), 500
+        return (
+            jsonify(
+                description=f"An exception has occured: {e}",
+                info="Error at: app/api/routes@delete_campaign()",
+            ),
+            500,
+        )
