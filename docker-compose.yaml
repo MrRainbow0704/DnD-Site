@@ -1,0 +1,30 @@
+version: '1'
+services:
+  db:
+    image: mysql:latest
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - db-data:/foo
+    networks:
+     - default
+
+  web: 
+    restart: unless-stopped
+    depends_on:
+      - db
+    build: .
+    ports:
+      - 8080:8080
+    environment:
+      DB_HOST_NAME: db
+    networks:
+     - default
+
+volumes:
+  db-data:
+
+networks:
+  default:
+    driver: bridge

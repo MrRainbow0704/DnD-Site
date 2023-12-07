@@ -2,21 +2,30 @@
 
 from flask import Flask
 import config
+from time import sleep
 from . import functions
 
 # Crea l'applicazione e inposta la secret key
 app = Flask(__name__, root_path=config.ROOT_PATH)
 app.secret_key = config.SECRET_KEY
 
-# Inizializza la connessione al database principale, esci dal programma in caso di fallimento
-MAINDB = functions.create_db(
-    config.DB_HOST_NAME,
-    config.DB_HOST_PORT,
-    config.DB_USER_NAME,
-    config.DB_USER_PASSWORD,
-    "dnd_site_main",
-)
-if MAINDB == False:
+# Prova a connettersi al database principale per 10 volte, esci dal programma in caso di fallimento
+tentativi, tentativi_max = 0, 10
+while tentativi < tentativi_max:
+    sleep(1)
+    MAINDB = functions.create_db(
+        config.DB_HOST_NAME,
+        config.DB_HOST_PORT,
+        config.DB_USER_NAME,
+        config.DB_USER_PASSWORD,
+        "dnd_site_main",
+    )
+    if MAINDB == False:
+        tentativi += 1
+        print(f"Failed to connect to the database {config.DB_USER_NAME}@{config.DB_HOST_NAME}:{config.DB_HOST_PORT}")
+    else:
+        break
+else:
     quit("Database connection faliure. (MainDB)")
 
 
@@ -34,7 +43,7 @@ functions.SQL_query(
             UserName VARCHAR(32) UNIQUE NOT NULL,
             Pwd VARCHAR(512) NOT NULL,
             Salt VARCHAR(32) NOT NULL,
-            Campaigns TEXT DEFAULT '[]');
+            Campaigns TEXT DEFAULT ('[]'));
             """,
 )
 
@@ -44,6 +53,6 @@ functions.SQL_query(
             Code VARCHAR(32) PRIMARY KEY,
             CampaignName TEXT NOT NULL,
             DungeonMaster INTEGER NOT NULL,
-            Players TEXT DEFAULT '[]');
+            Players TEXT DEFAULT ('[]'));
             """,
 )

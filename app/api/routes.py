@@ -167,11 +167,11 @@ def create_campaign():
                     Lvl INTEGER DEFAULT 1,
                     Exp INTEGER DEFAULT 0,
                     MaxHp INTEGER DEFAULT 0,
-                    Inventory TEXT DEFAULT '[]',
-                    Class TEXT DEFAULT '{}',
-                    Race TEXT DEFAULT '{}',
-                    Equipment TEXT DEFAULT '{}',
-                    Stats TEXT DEFAULT '{}'
+                    Inventory TEXT DEFAULT ('[]'),
+                    Class TEXT DEFAULT ('{}'),
+                    Race TEXT DEFAULT ('{}'),
+                    Equipment TEXT DEFAULT ('{}'),
+                    Stats TEXT DEFAULT ('{}')
                     );
                     """,
                 )
