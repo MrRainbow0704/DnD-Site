@@ -3,11 +3,19 @@
 {% block nav_campaign %}selected bg-body-secondary" aria-current="page"{% endblock nav_campaign %}
 
 {% block main %}
-<h1>Campagna</h1>
+<h1>{{ campaign["CampaignName"] }}</h1>
+<h2>Codice: {{ campaign["Code"] }}</h2>
+<h2>Giocatori:</h2>
+<ul>
+{# TODO Aggiungere i giocatori #}
+</ul>
+<div class="row m-0">
+    <input type="text" class="col d-inline-block form-control m-2" name="link" id="link" disabled value="{{ request.url_root + 'unisciti/' + campaign['Code'] }}">
+    <button type="button" class="col-2 d-inline-block btn btn-primary m-2" onclick="copy_link()">Copia link di invito!</button>
+</div>
 
-{{ code }}
 {% if player == "DUNGEONMASTER" %}
-<button type="button" onclick="delete_campaign()">Elimina campagna</button>
+<button type="button" class="btn btn-danger d-block m-2" onclick="delete_campaign()">Elimina campagna</button>
 {% endif %}
 {% endblock main %}
 
@@ -34,6 +42,14 @@
                     error_message(data, errType)
                 })
         }
+    }
+
+    function copy_link() {
+        var copyText = document.getElementById("link");
+        copyText.select();
+        copyText.setSelectionRange(0, 99999); 
+        navigator.clipboard.writeText(copyText.value);
+        alert("Link Copiato: " + copyText.value);
     }
 </script>
 {% endblock script %}

@@ -64,7 +64,7 @@ def profile():
             200,
         )
     else:
-        return redirect(url_for("login")), 401
+        return redirect(url_for("login"))
 
 
 @app.route("/campagna/<string:code>")
@@ -141,12 +141,25 @@ def campaign(code: str):
                         ),
                         500,
                     )
-
+            campaign = functions.SQL_query(
+                MAINDB,
+                "SELECT * FROM Campaigns WHERE Code=%s;",
+                (code,),
+                single=True,
+            )
+            if campaign == False:
+                return (
+                    jsonify(
+                        description="SQL query faliure.",
+                        info="Error at: app/routes@join_campaign() #2 SQL query",
+                    ),
+                    500,
+                )
             # Alla fine renderizza la pagina con tutte le sue variabili
             return (
                 render_template(
                     "campaign.html",
-                    code=code,
+                    campaign=campaign,
                     campagne=campagnie,
                     player=player,
                     token=session["Token"],
@@ -155,5 +168,57 @@ def campaign(code: str):
             )
         else:
             return redirect(url_for("profile"))
+    else:
+        return redirect(url_for("login"))
+
+
+@app.route("/unisciti/<string:code>")
+def join_campaign(code: str):
+    # Controlla che l'utente sia loggato
+    if "Id" in session:
+        # Aggiorna il token, prende le campagne a cui l'utente partecipa
+        session["Token"] = uuid4().hex
+        res = functions.SQL_query(
+            MAINDB, "SELECT * FROM Users WHERE Id=%s;", (session["Id"],), single=True
+        )
+        if res == False:
+            return (
+                jsonify(
+                    description="SQL query faliure.",
+                    info="Error at: app/routes@join_campaign() #1 SQL query",
+                ),
+                500,
+            )
+
+        # Controlla che l'utente non sia un membro della campagna altrimenti lo porta alla pagina della campagna
+        campagnie = json.loads(res["Campaigns"])
+        campagnie_id = [x["code"] for x in campagnie]
+        if not code in campagnie_id:
+            campaign = functions.SQL_query(
+                MAINDB,
+                "SELECT * FROM Campaigns WHERE Code=%s;",
+                (code,),
+                single=True,
+            )
+            if campaign == False:
+                return (
+                    jsonify(
+                        description="SQL query faliure.",
+                        info="Error at: app/routes@join_campaign() #2 SQL query",
+                    ),
+                    500,
+                )
+            return (
+                render_template(
+                    "join.html",
+                    campaign=campaign,
+                    code=code,
+                    campagne=campagnie,
+                    token=session["Token"],
+                ),
+                200,
+            )
+        else:
+            return redirect(url_for("campaign", code=code))
     else:
         return redirect(url_for("login"))

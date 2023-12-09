@@ -22,7 +22,9 @@ while tentativi < tentativi_max:
     )
     if MAINDB == False:
         tentativi += 1
-        print(f"Failed to connect to the database {config.DB_USER_NAME}@{config.DB_HOST_NAME}:{config.DB_HOST_PORT}")
+        print(
+            f"Failed to connect to the database {config.DB_USER_NAME}@{config.DB_HOST_NAME}:{config.DB_HOST_PORT}"
+        )
     else:
         break
 else:

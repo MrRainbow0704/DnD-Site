@@ -4,10 +4,7 @@
 
 {% block main %}
 <h1>Profilo</h1>
-<h2>Nome:
-
-    {{ session["UserName"] }}
-</h2>
+<h2>Nome: {{ session["UserName"] }}</h2>
 
 <form id="join-campaign">
     <label for="code">Codice invito:</label>
