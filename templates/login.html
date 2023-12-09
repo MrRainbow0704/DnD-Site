@@ -5,17 +5,24 @@
 {% block main %}
 <h1>Login</h1>
 <form id="login">
-    <span>
-        <label for="username">Username</label>
-        <input type="text" name="username" id="username" placeholder="Username...">
+    <span class="row mx-0 my-2">
+        <label class="col-2 form-label p-2 m-2" for="username">Username:</label>
+        <input class="col form-control m-2" type="text" name="username" id="username" placeholder="Username...">
     </span>
-    <span>
-        <label for="password">Password</label>
-        <input type="password" name="password" id="password" placeholder="Password...">
+    <span class="row mx-0 my-2">
+        <label class="col-2 form-label p-2 m-2" for="password">Password:</label>
+        <span class="col p-0 m-2 d-flex">
+            <input class="form-control" type="password" name="password" id="password" placeholder="Password...">
+            <button onclick="togglePassword('password')" class="toggle-password btn m-0" type="button" id="password-toggler">
+                <i class="bi bi-eye-fill"></i>
+            </button>
+        </span>
     </span>
-    <button type="button" onclick="login()">Registrati</button>
+    <span class="d-flex justify-content-between">
+        <p>Non hai un account? Crealo <a href="{{ url_for('sign_in') }}">QUI!</a></p>
+        <button class="btn btn-primary m-2 p-2" type="button" onclick="login()">Registrati</button>
+    </span>
 </form>
-<p>Non hai un account? Crealo <a href="{{ url_for('sign_in') }}">QUI!</a></p>
 {% endblock main %}
 
 {% block script %}

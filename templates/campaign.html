@@ -7,7 +7,9 @@
 <h2>Codice: {{ campaign["Code"] }}</h2>
 <h2>Giocatori:</h2>
 <ul>
-{# TODO Aggiungere i giocatori #}
+{% for p in players %}
+<li>{{ p }}</li>
+{% endfor %}
 </ul>
 <div class="row m-0">
     <input type="text" class="col d-inline-block form-control m-2" name="link" id="link" disabled value="{{ request.url_root + 'unisciti/' + campaign['Code'] }}">

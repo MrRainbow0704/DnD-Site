@@ -444,6 +444,23 @@ def join_campaign():
                     ),
                     500,
                 )
+            campaign_players = json.loads(campaign["Players"])
+            campaign_players.append(session["Id"])
+            if (
+                functions.SQL_query(
+                    MAINDB,
+                    "UPDATE Campaigns SET Players=%s WHERE Code=%s;",
+                    (json.dumps(campaign_players), code),
+                )
+                == False
+            ):
+                return (
+                    jsonify(
+                        description="SQL query faliure.",
+                        info="Error at: app/api/routes@join_campaign() #4 SQL query",
+                    ),
+                    500,
+                )
             campaigns = json.loads(player_data["Campaigns"])
             campaigns.append(
                 {
@@ -463,7 +480,7 @@ def join_campaign():
                 return (
                     jsonify(
                         description="SQL query faliure.",
-                        info="Error at: app/api/routes@join_campaign() #4 SQL query",
+                        info="Error at: app/api/routes@join_campaign() #5 SQL query",
                     ),
                     500,
                 )

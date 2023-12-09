@@ -1,7 +1,7 @@
 function error_message(data, errType) {
-    const wrapper = document.getElementById("alert-wrapper");
+	const wrapper = document.getElementById("alert-wrapper");
 
-	let content = `Code: ${data.status}: ${data.statusText}.<br/>Error type: ${errType}.<br/>Error Description: ${data.responseJSON.description}<br/>Error info: ${data.responseJSON.info}`;
+	const content = `Code: ${data.status}: ${data.statusText}.<br/>Error type: ${errType}.<br/>Error Description: ${data.responseJSON.description}<br/>Error info: ${data.responseJSON.info}`;
 	wrapper.innerHTML = [
 		'<div class="alert alert-danger alert-dismissible" role="alert">',
 		'   <div class="d-flex justify-content-between">',
@@ -10,12 +10,24 @@ function error_message(data, errType) {
 		"   </div>",
 		'   <button type="button" style="margin: 1.25rem 0.5rem;" class="btn-close p-2" data-bs-dismiss="alert" aria-label="Close"></button>',
 		"</div>",
-	].join("");;
-    
-    const popoverTriggerList = document.querySelectorAll(
+	].join("");
+
+	const popoverTriggerList = document.querySelectorAll(
 		'[data-bs-toggle="popover"]'
 	);
 	const popoverList = [...popoverTriggerList].map(
 		(popoverTriggerEl) => new bootstrap.Popover(popoverTriggerEl)
 	);
+}
+
+function togglePassword(input_id) {
+	const toggler = document.getElementById(`${input_id}-toggler`);
+	const password = document.getElementById(input_id);
+	if (password.getAttribute('type') === 'password') {
+		password.setAttribute('type', "text");
+		toggler.innerHTML = '<i class="bi bi-eye-slash-fill"></i>';
+	} else {
+		password.setAttribute('type', "password");
+		toggler.innerHTML = '<i class="bi bi-eye-fill"></i>';
+	}
 }

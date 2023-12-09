@@ -151,10 +151,25 @@ def campaign(code: str):
                 return (
                     jsonify(
                         description="SQL query faliure.",
-                        info="Error at: app/routes@join_campaign() #2 SQL query",
+                        info="Error at: app/routes@join_campaign() #3 SQL query",
                     ),
                     500,
                 )
+
+            players = []
+            for pId in json.loads(campaign["Players"]):
+                pl = functions.SQL_query(
+                    MAINDB, "SELECT * FROM Users WHERE Id=%s ;", (pId,), single=True
+                )
+                if pl == False:
+                    return (
+                        jsonify(
+                            description="SQL query faliure.",
+                            info="Error at: app/routes@join_campaign() #2 SQL query.",
+                        ),
+                        500,
+                    )
+                players.append(pl["UserName"])
             # Alla fine renderizza la pagina con tutte le sue variabili
             return (
                 render_template(
@@ -162,6 +177,7 @@ def campaign(code: str):
                     campaign=campaign,
                     campagne=campagnie,
                     player=player,
+                    players=players,
                     token=session["Token"],
                 ),
                 200,

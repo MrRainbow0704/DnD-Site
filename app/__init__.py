@@ -45,7 +45,7 @@ functions.SQL_query(
             UserName VARCHAR(32) UNIQUE NOT NULL,
             Pwd VARCHAR(512) NOT NULL,
             Salt VARCHAR(32) NOT NULL,
-            Campaigns TEXT DEFAULT ('[]'));
+            Campaigns TEXT NOT NULL DEFAULT ('[]'));
             """,
 )
 
@@ -54,7 +54,7 @@ functions.SQL_query(
     """CREATE TABLE IF NOT EXISTS Campaigns (
             Code VARCHAR(32) PRIMARY KEY,
             CampaignName TEXT NOT NULL,
-            DungeonMaster INTEGER NOT NULL,
-            Players TEXT DEFAULT ('[]'));
+            DungeonMaster TEXT NOT NULL DEFAULT ('{}'),
+            Players TEXT NOT NULL DEFAULT ('[]'));
             """,
 )

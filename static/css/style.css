@@ -27,3 +27,7 @@ footer {
     margin: 0 auto;
     text-align: center;
 }
+
+button.toggle-password {
+    margin-left: -42px !important;
+}
