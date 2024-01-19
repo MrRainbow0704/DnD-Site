@@ -1,0 +1,461 @@
+{% extends "base.html" %}
+
+{% block nav_documentation %}selected bg-body-secondary" aria-current="page"{% endblock nav_documentation %}
+
+{% block main %}
+<h1>Documentazione</h1>
+<menu>
+    <h2>Indice</h2>
+    <ul>
+        <li><a href="#abbreviazioni">Abbreviazioni</a></li>
+        <li>
+            <a href="#statistiche">Statistiche</a>
+            <ul>
+                <li><a href="#statistiche-descrizione">Descrizione</a></li>
+                <li><a href="#statistiche-determinazione">Come determinare le statistiche dei giocatori</a></li>
+                <li><a href="#statistiche-modificatori">Modificatori</a></li>
+            </ul>
+        </li>
+        <li><a href="#proficenza">Proficenza</a></li>
+        <li>
+            <a href="#combattimento">Combattimento</a>
+            <ul>
+                <li><a href="#combattimento-danni">Tipi di danni</a></li>
+                <li><a href="#combattimento-meccaniche">Meccaniche di combattimento</a></li>
+                <li><a href="#combattimento-esecuzione">Esecuzione di un attacco</a></li>
+            </ul>
+        </li>
+        <li><a href="#classi">Classi</a></li>
+    </ul>
+</menu>
+<section id="abbreviazioni">
+    <h2>Abbreviazioni</h2>
+    <ul>
+        <li><strong>CA</strong> = Classe Armatura</li>
+        <li><strong>CD</strong> = Classe Difficoltà</li>
+        <li><strong>HP</strong> = Punti Vita</li>
+        <li><strong>STR</strong> = Forza</li>
+        <li><strong>DEX</strong> = Destrezza</li>
+        <li><strong>CON</strong> = Costituzione</li>
+        <li><strong>INT</strong> = Intelligenza</li>
+        <li><strong>WIS</strong> = Saggezza</li>
+        <li><strong>CHA</strong> = Carisma</li>
+    </ul>
+</section>
+<section id="statistiche">
+    <h2>Statistiche</h2>
+    <article id="statistiche-descrizione">
+        <h3>Descrizione</h3>
+        <ul>
+            <li><strong>Forza:</strong> la forza fisica. (Atletica, Attacchi fisici) [STR]
+                <ul>
+                    <li>Atletica: Prove di forza, sollevamento pesi, lanci.</li>
+                    <li>Attacchi fisici: La tua Forza influisce sui danni fisici.</li>
+                </ul>
+            </li>
+            <li><strong>Destrezza:</strong> la tua capacità di movimento. (Acrobatica, Furtività, Maneggio) [DEX]
+                <ul>
+                    <li>Acrobatica: Fare acrobazie, rimanere in equilibrio.</li>
+                    <li>Furtività: Nascondersi, scappare senza essere visti.</li>
+                    <li>Maneggio: Spostare velocemente qualcosa, rubare.</li>
+                </ul>
+            </li>
+            <li><strong>Costituzione:</strong> la tua resistenza fisica. (Vita massima, Resistenza) [CON]
+                <ul>
+                    <li>Vita massima: La tua Costituzione influisce sulla tua Vita massima.</li>
+                    <li>Resistenza: Resistere a colpi, veleni o danni di qualunque tipo.</li>
+                </ul>
+            </li>
+            <li><strong>Intelligenza:</strong> la tua conoscenza e ragionamento. (Investigazione, Arcana, Storia) [INT]
+                <ul>
+                    <li>Investigazione: Cercare indizi, formulare ipotesi, ragionare.</li>
+                    <li>Arcana: Conoscenza sulla magia.</li>
+                    <li>Storia: Ricordarsi eventi passati, conoscenza di miti, storie e leggende.</li>
+                </ul>
+            </li>
+            <li><strong>Saggezza:</strong> la tua percezione e perspicacia. (Percezione, Gestione degli animali,
+                Intuizione) [WIS]
+                <ul>
+                    <li>Percezione: Rilevare pericoli, trappole, indizi o tracce.</li>
+                    <li>Gestione degli animali: Calmare, addomesticare e prendersi cura di animali.</li>
+                    <li>Intuizione: Determinare le vere intenzioni di qualcuno.</li>
+                </ul>
+            </li>
+            <li><strong>Carisma:</strong> le tue abilità di retorica e dialettica. (Dialettica, Persuasione,
+                Intimidazione) [CHA]
+                <ul>
+                    <li>Dialettica: La tua abilità nel parlare e nel mentire.</li>
+                    <li>Persuasione: Convincere qualcuno per mezzo di atti non violenti</li>
+                    <li>Intimidazione: Convincere qualcuno per mezzo di atti violenti.</li>
+                </ul>
+            </li>
+        </ul>
+    </article>
+    <article id="statistiche-determinazione">
+        <h3>Come determinare le statistiche dei giocatori</h3>
+        <p>
+            All'inizio della campagna i giocatori tirano per 6 volte 3d4 e la loro somma è il valore della statistica.
+            A ogni aumento di livello i giocatori tirano un d6 e aumentano di 1 la statistica indicata.
+        </p>
+    </article>
+    <article id="statistiche-modificatori">
+        <h3>Modificatori</h3>
+        <p>
+            La formula per calcolare un modificatore è:
+            <math>
+                <mi>Modificatore</mi>
+                <mo>=</mo>
+                <mfrac>
+                    <mi>Statistica</mi>
+                    <mn>2</mn>
+                </mfrac>
+                <mo>-</mo>
+                <mn>5</mn>
+            </math> Arrotondando per eccesso.
+        </p>
+        <table class="table table-bordered table-striped w-auto">
+            <thead>
+                <tr>
+                    <th>Statistica</th>
+                    <th>Modificatore</th>
+                    <th></th>
+                    <th>Statistica</th>
+                    <th>Modificatore</th>
+                </tr>
+            </thead>
+            <tbody class="table-group-divider">
+                <tr>
+                    <td>1-2</td>
+                    <td>-4</td>
+                    <td></td>
+                    <td>21-22</td>
+                    <td>+6</td>
+                </tr>
+                <tr>
+                    <td>3-4</td>
+                    <td>-3</td>
+                    <td></td>
+                    <td>23-24</td>
+                    <td>+7</td>
+                </tr>
+                <tr>
+                    <td>5-6</td>
+                    <td>-2</td>
+                    <td></td>
+                    <td>25-26</td>
+                    <td>+8</td>
+                </tr>
+                <tr>
+                    <td>7-8</td>
+                    <td>-1</td>
+                    <td></td>
+                    <td>27-28</td>
+                    <td>+9</td>
+                </tr>
+                <tr>
+                    <td>9-10</td>
+                    <td>0</td>
+                    <td></td>
+                    <td>29-30</td>
+                    <td>+10</td>
+                </tr>
+                <tr>
+                    <td>11-12</td>
+                    <td>+1</td>
+                    <td></td>
+                    <td>31-32</td>
+                    <td>+11</td>
+                </tr>
+                <tr>
+                    <td>13-14</td>
+                    <td>+2</td>
+                    <td></td>
+                    <td>33-34</td>
+                    <td>+12</td>
+                </tr>
+                <tr>
+                    <td>15-16</td>
+                    <td>+3</td>
+                    <td></td>
+                    <td>35-36</td>
+                    <td>+13</td>
+                </tr>
+                <tr>
+                    <td>17-18</td>
+                    <td>+4</td>
+                    <td></td>
+                    <td>37-38</td>
+                    <td>+14</td>
+                </tr>
+                <tr>
+                    <td>19-20</td>
+                    <td>+5</td>
+                    <td></td>
+                    <td>39-40</td>
+                    <td>+15</td>
+                </tr>
+            </tbody>
+        </table>
+    </article>
+</section>
+<section id="proficenza">
+    <h2>Proficenza</h2>
+    <p>
+        Il bonus di proficenza di un giocatore cresce in base al suo livello. Si applica solo se le condizioni lo
+        permettono
+        (Es. Si attacca con una specifica arma).
+        Si può calcolare con la formula:
+        <math>
+            <mi>Proficenza</mi>
+            <mo>=</mo>
+            <mfrac>
+                <mi>Livello</mi>
+                <mn>4</mn>
+            </mfrac>
+            <mo>+</mo>
+            <mn>1</mn>
+        </math>
+        Arrotondando per eccesso.
+    </p>
+    <table class="table table-bordered table-striped w-auto">
+        <thead>
+            <tr>
+                <th>Livello</th>
+                <th>Proficenza</th>
+                <th></th>
+                <th>Livello</th>
+                <th>Proficenza</th>
+            </tr>
+        </thead>
+        <tbody class="table-group-divider">
+            <tr>
+                <td>1</td>
+                <td>+2</td>
+                <td></td>
+                <td>11</td>
+                <td>+4</td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>+2</td>
+                <td></td>
+                <td>12</td>
+                <td>+4</td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td>+2</td>
+                <td></td>
+                <td>13</td>
+                <td>+5</td>
+            </tr>
+            <tr>
+                <td>4</td>
+                <td>+2</td>
+                <td></td>
+                <td>14</td>
+                <td>+5</td>
+            </tr>
+            <tr>
+                <td>5</td>
+                <td>+3</td>
+                <td></td>
+                <td>15</td>
+                <td>+5</td>
+            </tr>
+            <tr>
+                <td>6</td>
+                <td>+3</td>
+                <td></td>
+                <td>16</td>
+                <td>+5</td>
+            </tr>
+            <tr>
+                <td>7</td>
+                <td>+3</td>
+                <td></td>
+                <td>17</td>
+                <td>+6</td>
+            </tr>
+            <tr>
+                <td>8</td>
+                <td>+3</td>
+                <td></td>
+                <td>18</td>
+                <td>+6</td>
+            </tr>
+            <tr>
+                <td>9</td>
+                <td>+4</td>
+                <td></td>
+                <td>19</td>
+                <td>+6</td>
+            </tr>
+            <tr>
+                <td>10</td>
+                <td>+4</td>
+                <td></td>
+                <td>20</td>
+                <td>+6</td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+<section id="combattimento">
+    <h2>Combattimento</h2>
+    <article id="combattimento-danni">
+        <h3>Tipi di danni</h3>
+        <ul>
+            <li><strong>Acido:</strong> Danni da acido, scioglie le carni.</li>
+            <li><strong>Contundente:</strong> Danni da impatto come cadute, mazze, martelli e pugni.</li>
+            <li><strong>Forza:</strong> Energia magica pura.</li>
+            <li><strong>Fulmine:</strong> Danni elettrici.</li>
+            <li><strong>Fuoco:</strong> Bruciare, ipertermia.</li>
+            <li><strong>Ghiaccio:</strong> Congelare a morte, ipotermia.</li>
+            <li><strong>Necrotico:</strong> Morte, decadimento e avvizzimento.</li>
+            <li><strong>Perforante:</strong> Lance, frecce e qualunque cosa fa un buco.</li>
+            <li><strong>Psichico:</strong> Abilità telepatiche.</li>
+            <li><strong>Radiante:</strong> Il potere del sole e degli Dei.</li>
+            <li><strong>Sonico:</strong> Un rumore così forte da causare dolore.</li>
+            <li><strong>Taglio:</strong> Armi con lama come spade o asce.</li>
+            <li><strong>Veleno:</strong> Una sostanza tossica a livello biologico.</li>
+        </ul>
+    </article>
+    <article id="combattimento-meccaniche">
+        <h3>Meccaniche di combattimento</h3>
+        <ul>
+            <li><strong>Resistenza:</strong> Prendi 0.5× del danno.</li>
+            <li><strong>Debolezza:</strong> Prendi 2× del danno.</li>
+            <li><strong>Immunità:</strong> Non prendi danno.</li>
+            <li><strong>Vantaggio:</strong> Tiri due dadi e prendi il migliore.</li>
+            <li><strong>Svantaggio:</strong> Tiri due dadi e prendi il peggiore.</li>
+        </ul>
+    </article>
+    <article id="combattimento-esecuzione">
+        <h3>Esecuzione di un attacco</h3>
+        <ol>
+            <li>Determina la CA (Classe Armatura) del bersaglio.
+                <ul>
+                    <li>Player senza armatura:
+                        <math>
+                            <mi>CA</mi>
+                            <mo>=</mo>
+                            <mn>10</mn>
+                            <mo>+</mo>
+                            <mi>DEX</mi>
+                        </math>
+                    </li>
+                    <li>Player con armatura:
+                        <math>
+                            <mi>CA</mi>
+                            <mo>=</mo>
+                            <msub>
+                                <mi>CA</mi>
+                                <mi>Armatura</mi>
+                            </msub>
+                        </math>
+                    </li>
+                    <li>Mostro: Da trovare alla pagina del mostro</li>
+                </ul>
+            </li>
+            <li>Determina i modificatori.
+                <ol>
+                    <li>
+                        Determina la statistica da usare per il modificatore (Indicata nella descrizione
+                        dell&#39;arma/incantesimo).
+                    </li>
+                    <li>
+                        Calcolare il modificatore con la formula:
+                        <math>
+                            <mi>Modificatore</mi>
+                            <mo>=</mo>
+                            <mfrac>
+                                <mi>Statistica</mi>
+                                <mn>2</mn>
+                            </mfrac>
+                            <mo>-</mo>
+                            <mn>5</mn>
+                        </math>
+                        Arrotondando per eccesso.
+                    </li>
+                </ol>
+            </li>
+            <li>Determina la proficenza.
+                <ul>
+                    <li>Se il giocatore è proficente con l&#39;arma con cui si sta attaccando</li>
+                </ul>
+            </li>
+            <li>Tira un d20.
+                <ul>
+                    <li>Se il risultato (+ modificatori) è = 0 esegui un fallimento critico.</li>
+                    <li>Se il risultato (+ modificatori) è &lt; CA manchi l&#39;attacco.</li>
+                    <li>Se il risultato (+ modificatori) è = CA tiri una moneta.</li>
+                    <li>Se il risultato (+ modificatori) è &gt; CA colpisci il bersaglio l&#39;attacco.</li>
+                    <li>
+                        Se il risultato (+ modificatori) è = 20 esegui un successo critico. Tira il doppio dei dadi che
+                        avresti dovuto tirare.
+                    </li>
+                </ul>
+            </li>
+            <li>Se hai colpito un bersaglio tira i dadi d&#39;attacco specificati nella descrizione
+                dell&#39;arma/incantesimo.
+            </li>
+            <li>Se si ha vantaggio o svantaggio applicarlo ora.</li>
+            <li>In caso di artefatti che aggiungono danni si calcolano ora.</li>
+            <li>
+                Calcolare il danno usando la formula:
+                <math>
+                    <mi>Danno</mi>
+                    <mo>=</mo>
+                    <mi>TotaleDadi</mi>
+                    <mo>+</mo>
+                    <mi>Modificatore</mi>
+                    <mo>+</mo>
+                    <mi>Proficenza</mi>
+                </math>
+            </li>
+            <li>In caso di artefatti che moltiplicano i danni si calcolano ora.</li>
+        </ol>
+        <p>
+            Quindi la formula definitiva dell&#39;attacco è:
+            <math inline>
+                <mi>DannoTotale</mi>
+                <mo>=</mo>
+                <mo fence>(</mo>
+                <mi>TotaleDadi</mi>
+                <mo>+</mo>
+                <mi>DanniBonus</mi>
+                <mo>+</mo>
+                <mi>Modificatore</mi>
+                <mo>+</mo>
+                <mi>Proficenza</mi>
+                <mo fence>)</mo>
+                <mo>×</mo>
+                <mi>MoltiplicatoreDanni</mi>
+            </math>
+        </p>
+    </article>
+</section>
+<section id="classi">
+    <h2>Classi</h2>
+    <ul>
+        <li><strong>Artificiere:</strong> Modifica e costruisci oggetti con la magia. (Intelligenza)</li>
+        <li><strong>Barbaro:</strong> un combattente capace di infuriarsi durante una battaglia. (Forza)</li>
+        <li><strong>Bardo:</strong> un mago che ispira i suoi compagni con la musica. (Carisma)</li>
+        <li><strong>Chierico:</strong> un campione che utilizza il potere di una divinità. (Saggezza)</li>
+        <li><strong>Druido:</strong> un mago della natura con la capacità di assumere una forma animale. (Saggezza)</li>
+        <li><strong>Guerriero:</strong> un combattente abile con molte armi da mischia. (Forza, Destrezza)</li>
+        <li><strong>Ladro:</strong> una campione che utilizza la furtività per sgattaiolare tra i nemici. (Destrezza)
+        </li>
+        <li><strong>Mago:</strong> uno studioso della magia capace di gestirla al meglio. (Intelligenza)</li>
+        <li><strong>Monaco:</strong> un maestro delle arti marziali con uno spirito forte. (Destrezza, Saggezza)</li>
+        <li><strong>Paladino:</strong> un guerriero sacro legato da un giuramento solenne. (Forza, Saggezza)</li>
+        <li><strong>Ranger:</strong> un esperto dei boschi e dei sentieri. (Destrezza, Saggezza)</li>
+        <li><strong>Stregone:</strong> un incantatore che ha ottenuto i poteri dal suo sangue o da un dono.
+            (Intelligenza,
+            Carisma)</li>
+        <li><strong>Warlock:</strong> un incantatore che ha ottenuto il suo potere tramite il patto con un patrono
+            (Sagggezza, Carisma)</li>
+    </ul>
+</section>
+{% endblock main %}

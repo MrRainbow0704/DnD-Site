@@ -16,6 +16,7 @@
     <button type="button" class="col-2 d-inline-block btn btn-primary m-2" onclick="copy_link()">Copia link di invito!</button>
 </div>
 
+<button type="button" class="btn btn-danger d-block m-2" onclick="leave_campaign()">Abbandona campagna</button>
 {% if player == "DUNGEONMASTER" %}
 <button type="button" class="btn btn-danger d-block m-2" onclick="delete_campaign()">Elimina campagna</button>
 {% endif %}
@@ -37,7 +38,8 @@
                 .done(function (response) {
                     console.log(response)
                     alert("La tua campagna è stata cancellata!")
-                    window.location.href = "{{ url_for('profile') }}"
+                    alert(response.description)
+                    window.location.href = response.redirect
                 })
                 .fail(function (data, errType) {
                     console.log(data)
@@ -52,6 +54,30 @@
         copyText.setSelectionRange(0, 99999); 
         navigator.clipboard.writeText(copyText.value);
         alert("Link Copiato: " + copyText.value);
+    }
+
+    function leave_campaign() {
+        if (confirm("Sei sicuro di voler cancellare la campagna? Non potrai tornare indietro.")) {
+            $.ajax({
+                url: "{{ url_for('api.leave_campaign')}}",
+                data: {
+                    'Code': "{{ code }}",
+                    'Token': "{{ token }}"
+                    'Name': "{{ player.name }}"
+                },
+                type: "POST",
+                dataType: "json"
+            })
+                .done(function (response) {
+                    console.log(response)
+                    alert(response.description)
+                    window.location.href = response.redirect
+                })
+                .fail(function (data, errType) {
+                    console.log(data)
+                    error_message(data, errType)
+                })
+        }
     }
 </script>
 {% endblock script %}

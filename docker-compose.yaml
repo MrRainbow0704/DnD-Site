@@ -1,10 +1,10 @@
-version: '1'
+version: '2'
 services:
   db:
     image: mysql:latest
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: 
     volumes:
       - db-data:/foo
     networks:
@@ -19,6 +19,14 @@ services:
       - 8080:8080
     environment:
       DB_HOST_NAME: db
+      SECRET_KEY: a8667024255247eb89ffdc94c8ab43d2
+      PEPPER: d99a17f49fbd4afa9a1cc803f7ec325a
+      HOST: 0.0.0.0
+      PORT: 8080
+      DEBUG: 1
+      DB_HOST_PORT: 3306
+      DB_USER_NAME: root
+      DB_USER_PASSWORD: 
     networks:
      - default
 

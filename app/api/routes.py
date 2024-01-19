@@ -368,7 +368,13 @@ def delete_campaign():
                     500,
                 )
 
-            return jsonify(description="Campagna rimossa."), 200
+            return (
+                jsonify(
+                    description="Campagna rimossa.",
+                    redirect=url_for("profile"),
+                ),
+                200,
+            )
         else:
             return jsonify(description="Token non valido."), 403
     except Exception as e:
@@ -498,6 +504,134 @@ def join_campaign():
             jsonify(
                 description=f"An exception has occured: {e}",
                 info="Error at: app/api/routes@join_campaign()",
+            ),
+            500,
+        )
+
+
+@api.route("/leave_campaign", methods=["POST"])
+def leave_campaign():
+    try:
+        if request.form.get("Token") == session["Token"]:
+            code = request.form.get("Code")
+            name = request.form.get("Name")
+            user = api_functions.get_name(MAINDB, name)
+            if user == False:
+                return (
+                    jsonify(
+                        description="Database connection faliure (MainDb).",
+                        info="Error at: app/api/routes@leave_campaign() #1 database connection",
+                    ),
+                    500,
+                )
+            CampaignDb = functions.db_connect(
+                config.DB_HOST_NAME,
+                config.DB_HOST_PORT,
+                config.DB_USER_NAME,
+                config.DB_USER_PASSWORD,
+                f"dnd_site_campaign_{code}",
+            )
+            if CampaignDb == False:
+                return (
+                    jsonify(
+                        description="Database connection faliure (CampaignDb).",
+                        info="Error at: app/api/routes@leave_campaign() #2 database connection",
+                    ),
+                    500,
+                )
+
+            if (
+                functions.SQL_query(
+                    CampaignDb,
+                    "DELETE * FROM Players WHERE UserId = %s;",
+                    (user["Id"],),
+                )
+                == False
+            ):
+                return jsonify(
+                    description="SQL query faliure.",
+                    info="Error at: app/api/routes@leave_campaign() #1 SQL query",
+                )
+
+            player_data = functions.SQL_query(
+                MAINDB,
+                "SELECT * FROM Users WHERE Id=%s;",
+                (session["Id"],),
+                single=True,
+            )
+            if player_data == False:
+                return (
+                    jsonify(
+                        description="SQL query faliure.",
+                        info="Error at: app/api/routes@leave_campaign() #2 SQL query",
+                    ),
+                    500,
+                )
+            campaign = functions.SQL_query(
+                MAINDB,
+                "SELECT * FROM Campaigns WHERE Code=%s;",
+                (code,),
+                single=True,
+            )
+            if campaign == False:
+                return (
+                    jsonify(
+                        description="SQL query faliure.",
+                        info="Error at: app/api/routes@leave_campaign() #3 SQL query",
+                    ),
+                    500,
+                )
+            campaign_players = json.loads(campaign["Players"])
+            campaign_players.remove(session["Id"])
+            if (
+                functions.SQL_query(
+                    MAINDB,
+                    "UPDATE Campaigns SET Players=%s WHERE Code=%s;",
+                    (json.dumps(campaign_players), code),
+                )
+                == False
+            ):
+                return (
+                    jsonify(
+                        description="SQL query faliure.",
+                        info="Error at: app/api/routes@leave_campaign() #4 SQL query",
+                    ),
+                    500,
+                )
+            campaigns = json.loads(player_data["Campaigns"])
+            for campaign in campaigns:
+                if campaign["code"] == code:
+                    campaigns.remove(campaign)
+                    break
+            if (
+                functions.SQL_query(
+                    MAINDB,
+                    "UPDATE Users SET Campaigns=%s WHERE Id=%s;",
+                    (json.dumps(campaigns), session["Id"]),
+                )
+                == False
+            ):
+                return (
+                    jsonify(
+                        description="SQL query faliure.",
+                        info="Error at: app/api/routes@leave_campaign() #5 SQL query",
+                    ),
+                    500,
+                )
+            return (
+                jsonify(
+                    description="Hai abbandonato campagna.",
+                    redirect=url_for("profile"),
+                ),
+                200,
+            )
+        else:
+            return jsonify(description="Token non valido."), 403
+    except Exception as e:
+        return (
+            jsonify(
+                description=f"An exception has occured: {e}",
+                info="Error at: app/api/routes@leave_campaign()",
             ),
             500,
         )

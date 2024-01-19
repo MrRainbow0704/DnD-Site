@@ -49,26 +49,7 @@
 
     function join_campaign() {
         let code = $("#code").val();
-        if (code === "") {
-            alert("Non hai inserito un codice")
-        } else {
-            $.ajax({
-                {# url: "{{ url_for('api.join_campaign') }}", #}
-                data: {
-                    'Code': code,
-                    'Token': "{{ token }}"
-                },
-                type: "POST",
-                dataType: "json"
-            })
-                .done(function (response) {
-                    window.location.href = response.redirect
-                    })
-                .fail(function (data, errType) {
-                    console.log(data)
-                    error_message(data, errType)
-                })
-        }
+        window.location.href = `{{ url_for('join_campaign', code=0) }}`.replace("0", code)
     }
 </script>
 {% endblock script %}

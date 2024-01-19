@@ -67,6 +67,15 @@ def profile():
         return redirect(url_for("login"))
 
 
+@app.route("/documentazione")
+def documentation():
+    """Route per la pagina documentazione"""
+
+    # Aggiorna il token e renderizza la pagina
+    session["Token"] = uuid4().hex
+    return render_template("documentation.html", token=session["Token"]), 200
+
+
 @app.route("/campagna/<string:code>")
 def campaign(code: str):
     """Route per la pagina campagna
@@ -224,6 +233,8 @@ def join_campaign(code: str):
                     ),
                     500,
                 )
+            if api_functions.empty_input(campaign):
+                return redirect(url_for("profile"))
             return (
                 render_template(
                     "join.html",
