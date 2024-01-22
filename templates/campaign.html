@@ -3,80 +3,95 @@
 {% block nav_campaign %}selected bg-body-secondary" aria-current="page"{% endblock nav_campaign %}
 
 {% block main %}
-<h1>{{ campaign["CampaignName"] }}</h1>
-<h2>Codice: {{ campaign["Code"] }}</h2>
+<h1>
+
+    {{ campaign["CampaignName"] }}
+</h1>
+<h2>Codice:
+
+    {{ campaign["Code"] }}
+</h2>
 <h2>Giocatori:</h2>
 <ul>
-{% for p in players %}
-<li>{{ p }}</li>
-{% endfor %}
+    {% for p in players %}
+    <li>
+
+        {{ p }}
+    </li>
+    {% endfor %}
 </ul>
 <div class="row m-0">
-    <input type="text" class="col d-inline-block form-control m-2" name="link" id="link" disabled value="{{ request.url_root + 'unisciti/' + campaign['Code'] }}">
-    <button type="button" class="col-2 d-inline-block btn btn-primary m-2" onclick="copy_link()">Copia link di invito!</button>
+    <input type="text" class="col d-inline-block form-control m-2" name="link" id="link" disabled
+        value="{{ request.url_root + 'unisciti/' + campaign['Code'] }}">
+    <button type="button" class="col-2 d-inline-block btn btn-primary m-2" onclick="copy_link()">Copia link di
+        invito!</button>
 </div>
-
-<button type="button" class="btn btn-danger d-block m-2" onclick="leave_campaign()">Abbandona campagna</button>
-{% if player == "DUNGEONMASTER" %}
+{{player}}
+{% if player == "DM" %}
 <button type="button" class="btn btn-danger d-block m-2" onclick="delete_campaign()">Elimina campagna</button>
+{% else %}
+<button type="button" class="btn btn-danger d-block m-2" onclick="leave_campaign()">Abbandona campagna</button>
 {% endif %}
 {% endblock main %}
 
 {% block script %}
 <script>
     function delete_campaign() {
-        if (confirm("Sei sicuro di voler cancellare la campagna? Non potrai tornare indietro.")) {
+        if (
+            confirm(
+                "Sei sicuro di voler cancellare la campagna? Non potrai tornare indietro."
+            )
+        ) {
             $.ajax({
                 url: "{{ url_for('api.delete_campaign')}}",
                 data: {
-                    'Code': "{{ code }}",
-                    'Token': "{{ token }}"
+                    Code: "{{ campaign["Code"] }}",
+                    Token: "{{ token }}",
                 },
                 type: "POST",
-                dataType: "json"
+                dataType: "json",
             })
                 .done(function (response) {
-                    console.log(response)
-                    alert("La tua campagna è stata cancellata!")
-                    alert(response.description)
-                    window.location.href = response.redirect
+                    alert(response.description);
+                    window.location.href = response.redirect;
                 })
                 .fail(function (data, errType) {
-                    console.log(data)
-                    error_message(data, errType)
-                })
+                    error_message(data, errType);
+                });
         }
     }
 
     function copy_link() {
         var copyText = document.getElementById("link");
         copyText.select();
-        copyText.setSelectionRange(0, 99999); 
+        copyText.setSelectionRange(0, 99999);
         navigator.clipboard.writeText(copyText.value);
         alert("Link Copiato: " + copyText.value);
     }
 
     function leave_campaign() {
-        if (confirm("Sei sicuro di voler cancellare la campagna? Non potrai tornare indietro.")) {
+        if (
+            confirm(
+                "Sei sicuro di voler cancellare la campagna? Non potrai tornare indietro."
+            )
+        ) {
             $.ajax({
                 url: "{{ url_for('api.leave_campaign')}}",
                 data: {
-                    'Code': "{{ code }}",
-                    'Token': "{{ token }}"
-                    'Name': "{{ player.name }}"
+                    Code: "{{ campaign["Code"] }}",
+                    Token: "{{ token }}",
+                    Name: "{{ player.name }}",
                 },
                 type: "POST",
-                dataType: "json"
+                dataType: "json",
             })
                 .done(function (response) {
-                    console.log(response)
-                    alert(response.description)
-                    window.location.href = response.redirect
+                    alert(response.description);
+                    window.location.href = response.redirect;
                 })
                 .fail(function (data, errType) {
-                    console.log(data)
-                    error_message(data, errType)
-                })
+                    error_message(data, errType);
+                });
         }
     }
 </script>

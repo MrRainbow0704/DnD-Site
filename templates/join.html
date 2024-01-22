@@ -36,11 +36,10 @@
             dataType: "json"
         })
             .done(function (response) {
-                window.location.href = response.redirect
+                window.location.href = response.redirect;
             })
         .fail(function (data, errType) {
-            console.log(data)
-            error_message(data, errType)
+            error_message(data, errType);
         })
     }
 </script>

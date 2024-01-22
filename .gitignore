@@ -139,3 +139,5 @@ cython_debug/
 
 # Visual Studio Code folder
 .vscode/
+
+uploads/*

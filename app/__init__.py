@@ -5,9 +5,10 @@ import config
 from time import sleep
 from . import functions
 
-# Crea l'applicazione e inposta la secret key
+# Crea l'applicazione e imposta la secret key
 app = Flask(__name__, root_path=config.ROOT_PATH)
 app.secret_key = config.SECRET_KEY
+app.config["UPLOAD_FOLDER"] = config.UPLOADS_PATH
 
 # Prova a connettersi al database principale per 10 volte, esci dal programma in caso di fallimento
 tentativi, tentativi_max = 0, 10
@@ -28,7 +29,7 @@ while tentativi < tentativi_max:
     else:
         break
 else:
-    quit("Database connection faliure. (MainDB)")
+    quit("Database connection failure. (MainDB)")
 
 
 from . import routes
@@ -54,7 +55,7 @@ functions.SQL_query(
     """CREATE TABLE IF NOT EXISTS Campaigns (
             Code VARCHAR(32) PRIMARY KEY,
             CampaignName TEXT NOT NULL,
-            DungeonMaster TEXT NOT NULL DEFAULT ('{}'),
+            DungeonMaster INTEGER NOT NULL,
             Players TEXT NOT NULL DEFAULT ('[]'));
             """,
 )

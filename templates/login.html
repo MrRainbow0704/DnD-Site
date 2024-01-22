@@ -41,12 +41,10 @@
             dataType: "json"
         })
             .done(function (response) {
-                console.log(response)
-                window.location.href = "{{ url_for('profile') }}"
+                window.location.href = "{{ url_for('profile') }}";
             })
             .fail(function (data, errType) {
-                console.log(data)
-                error_message(data, errType)
+                error_message(data, errType);
             });
     }
 </script>

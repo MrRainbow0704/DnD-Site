@@ -1,7 +1,10 @@
-from flask import render_template, redirect, session, url_for, jsonify
+"""Un modulo con tutte le direttive per gli url base"""
+
+from flask import render_template, redirect, session, url_for, jsonify, request
 import json
 import config
 from uuid import uuid4
+from markdown import markdown
 from .api import routes as api_routes
 from .api import api_functions
 from . import app, functions, MAINDB
@@ -39,7 +42,7 @@ def logout():
     """Route per la pagina di logout"""
 
     # Aggiorna il token e renderizza la pagina
-    if "Id" in session:
+    if functions.is_logged_in():
         api_routes.logout()
         return redirect(url_for("login"))
     else:
@@ -51,10 +54,10 @@ def profile():
     """Route per la pagina profilo"""
 
     # Controlla che l'utente sia loggato altrimenti lo porta a login
-    if "Id" in session:
+    if functions.is_logged_in():
         # Aggiorna il token, prende le campagne a cui l'utente partecipa e renderizza la pagina
         session["Token"] = uuid4().hex
-        res = api_functions.get_name(MAINDB, session["UserName"])
+        res = functions.get_user_from_id(MAINDB, session["Id"])
         return (
             render_template(
                 "profile.html",
@@ -67,14 +70,18 @@ def profile():
         return redirect(url_for("login"))
 
 
+# @app.route("/campagna/<string:code>/documentazione")
+# def documentation(code: str):
+#     """Route per la pagina documentazione"""
+#     with open(config.UPLOADS_PATH / f"{code}.md", "r", encoding="UTF-8") as f:
+#         text = f.read()
+#     file = {"html": markdown(text, output_format="html"), "md": text}
+#     # Aggiorna il token e renderizza la pagina
+#     session["Token"] = uuid4().hex
+#     return render_template("documentation.html", file=file, token=session["Token"]), 200
 @app.route("/documentazione")
 def documentation():
-    """Route per la pagina documentazione"""
-
-    # Aggiorna il token e renderizza la pagina
-    session["Token"] = uuid4().hex
-    return render_template("documentation.html", token=session["Token"]), 200
-
+    return ""
 
 @app.route("/campagna/<string:code>")
 def campaign(code: str):
@@ -85,25 +92,22 @@ def campaign(code: str):
     """
 
     # Controlla che l'utente sia loggato altrimenti lo porta a login
-    if "Id" in session:
+    if functions.is_logged_in():
         # Aggiorna il token, prende le campagne a cui l'utente partecipa
         session["Token"] = uuid4().hex
-        res = functions.SQL_query(
-            MAINDB, "SELECT * FROM Users WHERE Id=%s;", (session["Id"],), single=True
-        )
-        if res == False:
+        campagne = functions.get_user_campaigns(MAINDB, session["Id"])
+        if campagne == False:
             return (
                 jsonify(
-                    description="SQL query faliure.",
+                    description="SQL query failure.",
                     info="Error at: app/routes@campaign() #1 SQL query",
                 ),
                 500,
             )
-
         # Controlla che l'utente sia un membro della campagna altrimenti lo porta a profilo
-        campagnie = json.loads(res["Campaigns"])
-        campagnie_id = [x["code"] for x in campagnie]
-        if code in campagnie_id:
+
+        campagne_id = [x["code"] for x in campagne]
+        if code in campagne_id:
             CampaignDb = functions.db_connect(
                 config.DB_HOST_NAME,
                 config.DB_HOST_PORT,
@@ -114,19 +118,17 @@ def campaign(code: str):
             if CampaignDb == False:
                 return (
                     jsonify(
-                        description="Database connection faliure (CampaignDb).",
+                        description="Database connection failure (CampaignDb).",
                         info="Error at: app/routes@campaign() #1 database connection",
                     ),
                     500,
                 )
 
-            campagna = functions.SQL_query(
-                MAINDB, "SELECT * FROM Campaigns WHERE Code=%s;", (code,), single=True
-            )
+            campagna = functions.get_campaign_from_code(MAINDB, code)
             if campagna == False:
                 return (
                     jsonify(
-                        description="SQL query faliure.",
+                        description="SQL query failure.",
                         info="Error at: app/routes@campaign() #2 SQL query",
                     ),
                     500,
@@ -134,59 +136,42 @@ def campaign(code: str):
 
             # Controlla se l'utente è il Dungeon Master, altrimenti provvede al prelievo dei dati
             if campagna["DungeonMaster"] == session["Id"]:
-                player = "DUNGEONMASTER"
+                player = "DM"
+
             else:
-                player = functions.SQL_query(
-                    CampaignDb,
-                    "SELECT * FROM Players WHERE UserId=%s;",
-                    (session["Id"],),
-                    single=True,
-                )
+                player = functions.get_player_from_id(CampaignDb, session["Id"])
                 if player == False:
                     return (
                         jsonify(
-                            description="SQL query faliure.",
+                            description="SQL query failure.",
                             info="Error at: app/routes@campaign() #3 SQL query",
                         ),
                         500,
                     )
-            campaign = functions.SQL_query(
-                MAINDB,
-                "SELECT * FROM Campaigns WHERE Code=%s;",
-                (code,),
-                single=True,
-            )
-            if campaign == False:
-                return (
-                    jsonify(
-                        description="SQL query faliure.",
-                        info="Error at: app/routes@join_campaign() #3 SQL query",
-                    ),
-                    500,
-                )
-
             players = []
-            for pId in json.loads(campaign["Players"]):
-                pl = functions.SQL_query(
-                    MAINDB, "SELECT * FROM Users WHERE Id=%s ;", (pId,), single=True
-                )
+            for pId in json.loads(campagna["Players"]):
+                if type(pId) == int:
+                    pl = functions.get_user_from_id(MAINDB, pId)
+                else:
+                    pl = functions.get_user_from_id(MAINDB, pId["UserId"])
                 if pl == False:
                     return (
                         jsonify(
-                            description="SQL query faliure.",
+                            description="SQL query failure.",
                             info="Error at: app/routes@join_campaign() #2 SQL query.",
                         ),
                         500,
                     )
+                
                 players.append(pl["UserName"])
             # Alla fine renderizza la pagina con tutte le sue variabili
             return (
                 render_template(
                     "campaign.html",
-                    campaign=campaign,
-                    campagne=campagnie,
+                    campaign=campagna,
+                    campagne=campagne,
                     player=player,
-                    players=players,
+                    # players=players,
                     token=session["Token"],
                 ),
                 200,
@@ -200,35 +185,27 @@ def campaign(code: str):
 @app.route("/unisciti/<string:code>")
 def join_campaign(code: str):
     # Controlla che l'utente sia loggato
-    if "Id" in session:
+    if functions.is_logged_in():
         # Aggiorna il token, prende le campagne a cui l'utente partecipa
         session["Token"] = uuid4().hex
-        res = functions.SQL_query(
-            MAINDB, "SELECT * FROM Users WHERE Id=%s;", (session["Id"],), single=True
-        )
-        if res == False:
+        campagne = functions.get_user_campaigns(MAINDB, session["Id"])
+        if campagne == False:
             return (
                 jsonify(
-                    description="SQL query faliure.",
+                    description="SQL query failure.",
                     info="Error at: app/routes@join_campaign() #1 SQL query",
                 ),
                 500,
             )
 
         # Controlla che l'utente non sia un membro della campagna altrimenti lo porta alla pagina della campagna
-        campagnie = json.loads(res["Campaigns"])
-        campagnie_id = [x["code"] for x in campagnie]
-        if not code in campagnie_id:
-            campaign = functions.SQL_query(
-                MAINDB,
-                "SELECT * FROM Campaigns WHERE Code=%s;",
-                (code,),
-                single=True,
-            )
+        campagne_id = [x["code"] for x in campagne]
+        if not code in campagne_id:
+            campaign = functions.get_campaign_from_code(MAINDB, code)
             if campaign == False:
                 return (
                     jsonify(
-                        description="SQL query faliure.",
+                        description="SQL query failure.",
                         info="Error at: app/routes@join_campaign() #2 SQL query",
                     ),
                     500,
@@ -240,7 +217,7 @@ def join_campaign(code: str):
                     "join.html",
                     campaign=campaign,
                     code=code,
-                    campagne=campagnie,
+                    campagne=campagne,
                     token=session["Token"],
                 ),
                 200,

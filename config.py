@@ -5,6 +5,9 @@ from os import getenv
 
 # Main dir path
 ROOT_PATH = Path(__file__).resolve().parent
+UPLOADS_PATH = ROOT_PATH / "uploads"
+if not UPLOADS_PATH.exists():
+    UPLOADS_PATH.mkdir(parents=True, exist_ok=True)
 
 # Secrets from .env
 if load_dotenv():
