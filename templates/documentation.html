@@ -26,6 +26,7 @@
             </ul>
         </li>
         <li><a href="#classi">Classi</a></li>
+        <li><a href="#razze">Razze</a></li>
     </ul>
 </menu>
 <section id="abbreviazioni">
@@ -102,6 +103,7 @@
         <h3>Modificatori</h3>
         <p>
             La formula per calcolare un modificatore è:
+        <div class="formula">
             <math>
                 <mi>Modificatore</mi>
                 <mo>=</mo>
@@ -111,7 +113,9 @@
                 </mfrac>
                 <mo>-</mo>
                 <mn>5</mn>
-            </math> Arrotondando per eccesso.
+            </math>
+            Arrotondando per eccesso.
+        </div>
         </p>
         <table class="table table-bordered table-striped w-auto">
             <thead>
@@ -205,6 +209,7 @@
         permettono
         (Es. Si attacca con una specifica arma).
         Si può calcolare con la formula:
+    <div class="formula">
         <math>
             <mi>Proficenza</mi>
             <mo>=</mo>
@@ -216,6 +221,7 @@
             <mn>1</mn>
         </math>
         Arrotondando per eccesso.
+    </div>
     </p>
     <table class="table table-bordered table-striped w-auto">
         <thead>
@@ -366,17 +372,19 @@
                     </li>
                     <li>
                         Calcolare il modificatore con la formula:
-                        <math>
-                            <mi>Modificatore</mi>
-                            <mo>=</mo>
-                            <mfrac>
-                                <mi>Statistica</mi>
-                                <mn>2</mn>
-                            </mfrac>
-                            <mo>-</mo>
-                            <mn>5</mn>
-                        </math>
-                        Arrotondando per eccesso.
+                        <div class="formula">
+                            <math>
+                                <mi>Modificatore</mi>
+                                <mo>=</mo>
+                                <mfrac>
+                                    <mi>Statistica</mi>
+                                    <mn>2</mn>
+                                </mfrac>
+                                <mo>-</mo>
+                                <mn>5</mn>
+                            </math>
+                            Arrotondando per eccesso.
+                        </div>
                     </li>
                 </ol>
             </li>
@@ -404,21 +412,24 @@
             <li>In caso di artefatti che aggiungono danni si calcolano ora.</li>
             <li>
                 Calcolare il danno usando la formula:
-                <math>
-                    <mi>Danno</mi>
-                    <mo>=</mo>
-                    <mi>TotaleDadi</mi>
-                    <mo>+</mo>
-                    <mi>Modificatore</mi>
-                    <mo>+</mo>
-                    <mi>Proficenza</mi>
-                </math>
+                <div class="formula">
+                    <math>
+                        <mi>Danno</mi>
+                        <mo>=</mo>
+                        <mi>TotaleDadi</mi>
+                        <mo>+</mo>
+                        <mi>Modificatore</mi>
+                        <mo>+</mo>
+                        <mi>Proficenza</mi>
+                    </math>
+                </div>
             </li>
             <li>In caso di artefatti che moltiplicano i danni si calcolano ora.</li>
         </ol>
         <p>
             Quindi la formula definitiva dell&#39;attacco è:
-            <math inline>
+        <div class="formula">
+            <math>
                 <mi>DannoTotale</mi>
                 <mo>=</mo>
                 <mo fence>(</mo>
@@ -433,29 +444,237 @@
                 <mo>×</mo>
                 <mi>MoltiplicatoreDanni</mi>
             </math>
+        </div>
         </p>
     </article>
 </section>
 <section id="classi">
     <h2>Classi</h2>
     <ul>
-        <li><strong>Artificiere:</strong> Modifica e costruisci oggetti con la magia. (Intelligenza)</li>
-        <li><strong>Barbaro:</strong> un combattente capace di infuriarsi durante una battaglia. (Forza)</li>
-        <li><strong>Bardo:</strong> un mago che ispira i suoi compagni con la musica. (Carisma)</li>
-        <li><strong>Chierico:</strong> un campione che utilizza il potere di una divinità. (Saggezza)</li>
-        <li><strong>Druido:</strong> un mago della natura con la capacità di assumere una forma animale. (Saggezza)</li>
-        <li><strong>Guerriero:</strong> un combattente abile con molte armi da mischia. (Forza, Destrezza)</li>
-        <li><strong>Ladro:</strong> una campione che utilizza la furtività per sgattaiolare tra i nemici. (Destrezza)
+        <li>
+            <strong>Artificiere:</strong> Modifica e costruisci oggetti con la magia. (Intelligenza)
+            <ul>
+                <li>Alchimista: Crea intrugli e composti dagli effetti spettacolari.</li>
+                <li>Artigliere: Combinano la magia e la meccanica per creare potenti marchingegni.</li>
+            </ul>
         </li>
-        <li><strong>Mago:</strong> uno studioso della magia capace di gestirla al meglio. (Intelligenza)</li>
-        <li><strong>Monaco:</strong> un maestro delle arti marziali con uno spirito forte. (Destrezza, Saggezza)</li>
-        <li><strong>Paladino:</strong> un guerriero sacro legato da un giuramento solenne. (Forza, Saggezza)</li>
-        <li><strong>Ranger:</strong> un esperto dei boschi e dei sentieri. (Destrezza, Saggezza)</li>
-        <li><strong>Stregone:</strong> un incantatore che ha ottenuto i poteri dal suo sangue o da un dono.
-            (Intelligenza,
-            Carisma)</li>
-        <li><strong>Warlock:</strong> un incantatore che ha ottenuto il suo potere tramite il patto con un patrono
-            (Sagggezza, Carisma)</li>
+        <li>
+            <strong>Barbaro:</strong> un combattente capace di infuriarsi durante una battaglia. (Forza)
+            <ul>
+                <li>Percorso del Guardiano: Ottiene il potere dagli spiriti degli antenati.</li>
+                <li>Percorso del Berserker: Ottiene il potere dalla sua rabbia.</li>
+                <li>Percorso del Totem: Ottiene il potere di un animale guida.</li>
+                <li>Percorso dello Zelota: Ottiene il potere da una divinità.</li>
+            </ul>
+        </li>
+        <li>
+            <strong>Bardo:</strong> un mago che ispira i suoi compagni con la musica. (Carisma)
+            <ul>
+                <li>Collegio del Fascino: Usano melodie per ammaliare le loro vittime.</li>
+                <li>Collegio della Tradizione: Si ispirano alle leggende che conoscono per risolvere i problemi.</li>
+                <li>Collegio della Spada: Combattenti abili che usano tecniche stravaganti.</li>
+                <li>Collegio dei Sussurri: Bardi capaci di infiltrarsi ovunque pur di raccogliere informazioni.</li>
+            </ul>
+        </li>
+        <li>
+            <strong>Chierico:</strong> un campione che utilizza il potere di una divinità. (Saggezza)
+            <ul>
+                <li>Dominio della Conoscenza: Dedicano la vita alla scoperta della conoscenza.</li>
+                <li>Dominio della Vita: Medici e curatori, curano chi ne ha bisogno.</li>
+                <li>Dominio della Luce: Portano la luce delle divinità anche negli abissi più profondi.</li>
+                <li>Dominio della Natura: Proteggono la natura creata dalle divinità.</li>
+                <li>Dominio della Tempesta: Portano timore nel cuore degli eretici.</li>
+                <li>Dominio della Guerra: Combattono guerre nel nome delle divinità.</li>
+            </ul>
+        </li>
+        <li>
+            <strong>Druido:</strong> un mago della natura con la capacità di assumere una forma animale. (Saggezza)
+            <ul>
+                <li>Circolo dei Sogni: Possiedono magie di illusione e divinazione.</li>
+                <li>Circolo della Terra: Votati principalmente alla difesa del territorio.</li>
+                <li>Circolo della Luna: Druidi solitari, preferiscono rimanere in forma animale.</li>
+                <li>Circolo delle Stelle: Esperti lettori del cielo, incanalano il potere del Cosmo.</li>
+            </ul>
+        </li>
+        <li><strong>Guerriero:</strong> un combattente abile con molte armi da mischia. (Forza, Destrezza)</li>
+        <li>
+            <strong>Ladro:</strong> una campione che utilizza la furtività per sgattaiolare tra i nemici. (Destrezza)
+            <ul>
+                <li>Archetipo dell'Ingannatore: Usano la magia per sgattaiolare e ingannare i nemici.</li>
+                <li>Archetipo dell'Assassino: Specializzati nell'uccidere senza farsi notare.</li>
+                <li>Archetipo del Ladro: Specializzati in ripulire tasche e bauli, maestri nello scasso.</li>
+                <li>Archetipo della Spia: Specializzato nel raccogliere informazioni rimanendo nell'ombra.</li>
+            </ul>
+        </li>
+        <li>
+            <strong>Mago:</strong> uno studioso della magia capace di gestirla al meglio. (Intelligenza)
+            <ul>
+                <li>Scuola della Congiurazione: Tasferire materia e energia tra i piani. (Teletrasporto, Creazione)</li>
+                <li>Scuola della Divinazione: Conoscere futuro, presente e passato. (Percezione magica)</li>
+                <li>Scuola dell'Evocazione: Manipolazione di energia. (Palla di fuoco, Fulmine)</li>
+                <li>Scuola dell'Incantamento: Attacchi mentali, controllo mentale. (Fascino, Ipnosi)</li>
+                <li>Scuola dell'Illusione: Illusioni, nascondere cose, modifica delle memorie. (Invisibilità,
+                    Cammuffamento)</li>
+                <li>Scuola della Necromanzia: Potere della morte, controllo dei non morti. (Animare i morti, Tocco della
+                    morte)</li>
+                <li>Scuola della Taumaturgia: Incantesimi principalmente difensivi. (Scudi, Deflettere incantesimi,
+                    Cure)</li>
+                <li>
+                    Scuola della Trasmutazione: Alterare le propietà fisiche del bersaglio. (Scalda metallo, Controllo
+                    dell'acqua)
+                </li>
+            </ul>
+        </li>
+        <li>
+            <strong>Monaco:</strong> un maestro delle arti marziali con uno spirito forte. (Destrezza, Saggezza)
+            <ul>
+                <li>Tradizione del Respiro: Trascorrono la loro vita in silenzio e sono esperti nel prevedere gli
+                    attacchi.</li>
+                <li>Tradizione del Pugno di Pietra: Allenano continuamente il loro corpo per raggiungere livelli
+                    sovrumani.</li>
+                <li>Tradizione dei 4 Elementi: Usano il ki per manipolare gli elementi.</li>
+                <li>Tradizione dell'Anima del sole: Passano la vita a meditare per ottenere un'anima raggiante come il
+                    sole stesso.</li>
+                <li>Tradizione della Mano Vuota: Sono i campioni definitivi del combattimento senza armi.</li>
+                <li>Tradizione delle Ombre: Usano il ki per nascondersi agli occhi dei nemici.</li>
+            </ul>
+        </li>
+        <li>
+            <strong>Paladino:</strong> un guerriero sacro legato da un giuramento solenne. (Forza, Saggezza)
+            <ul>
+                <li>Giuramento degli Antichi</li>
+                <li>Giuramento della Conquista</li>
+                <li>Giuramento della Devozione</li>
+                <li>Giuramento della Redenzione</li>
+                <li>Giuramento della Vendetta</li>
+            </ul>
+        </li>
+        <li>
+            <strong>Ranger:</strong> un esperto dei boschi e dei sentieri. (Destrezza, Saggezza)
+            <ul>
+                <li>Archetipo del Maestro delle Bestie: Ottengono la loro forza dal legame con un'animale.</li>
+                <li>Archetipo del Cacciatore: Capaci di tracciare creature con enorme precisione.</li>
+                <li>Archetipo del Cacciatore dell'Oscurità: Abili a tendere imboscate nascondendosi nelle ombre.</li>
+                <li>Archetipo del Cacciatore di Mostri: Votato a eradicale le bestie malvage dalle foreste.</li>
+                <li>Archetipo dello Sciame: Ottengono il loro potere da tanti piccoli animali o spiriti.</li>
+            </ul>
+        </li>
+        <li>
+            <strong>Stregone:</strong> un incantatore che ha ottenuto i poteri dal suo sangue o da un dono.
+            (Intelligenza, Carisma)
+            <ul>
+                <li>Origine dalla Mente Aberrante: Nato dalla simbiosi con un parassita intraplanare.</li>
+                <li>Origine dall'Anima Meccanica: Credono che il mondo sia come un macchinario a cui fare manutenzione.
+                </li>
+                <li>Origine dall'Anima Divina: Ottengono il loro potere perché benedetti da una divinita.</li>
+                <li>Origine dall'Anima Draconica: Ottengono il potere tramite il supporto di un drago (Potenzialmente un
+                    antenato).</li>
+                <li>Origine dall'Anima Oscura: Ottengono il loro potere dal piano delle ombre e sono corrotti da esso.
+                </li>
+                <li>Origine dall'Anima Tempestosa: Ottengono il loro potere dall'aria stessa e scatenano attacchi
+                    meterologici.</li>
+                <li>Origine dall'Anima Selvaggia: Ottengono il loro potere dal caos presente nei piani dell'esistenza.
+                </li>
+            </ul>
+        </li>
+        <li>
+            <strong>Warlock:</strong> un incantatore che ha ottenuto il suo potere tramite il patto con un patrono
+            (Sagggezza, Carisma)
+            <ul>
+                <li>Patto Celestiale: Hanno stretto il patto con una divinità.</li>
+                <li>Patto Infernale: Hanno stretto il patto con un diavolo maggiore.</li>
+                <li>Patto Oscuro: Hanno stretto il patto con una creatura dell'oscurità.</li>
+                <li>Patto delle Fate: Hanno stretto il patto con una o più Fate o Spiriti.</li>
+                <li>Patto delle Stelle: Hanno stretto il patto con una entità cosmica</li>
+                <li>Patto del Non Morto: Hanno stretto il patto con un'entità immortale non morta (Es. Elder Lich)</li>
+            </ul>
+        </li>
+    </ul>
+</section>
+<section id="razze">
+    <h2>Razze</h2>
+    <ul>
+        <li><strong>Nano:</strong> sono noti come grandi fabbri e ottimi combattenti. (+2 Costituzione, +1 Intelligenza,
+            Scurovisione, Resilienza nanica)<ul>
+                <li>Scurovisione: Vedi al buio.</li>
+                <li>Resilienza nanica: Hai vantaggio sui tiri di resistenza ai veleni.</li>
+            </ul>
+        </li>
+        <li><strong>Elfo:</strong> i magici abitanti di boschi e foreste. (+2 Destrezza, +1 Saggezza, Scurovisione,
+            Sensi
+            aumentati)<ul>
+                <li>Scurovisione: Vedi al buio.</li>
+                <li>Sensi aumentati: Hai vantaggio sui tiri di percezione.</li>
+            </ul>
+        </li>
+        <li><strong>Gnomo:</strong> i piccoli esseri che abitano il sottobosco. (+2 Intelligenza, +1 Saggezza,
+            Scurovisione,
+            Astuzia gnomica)<ul>
+                <li>Scurovisione: Vedi al buio.</li>
+                <li>Astuzia gnomica: Hai vantaggio sui tiri salvezza contro magia di Intelligenza, Saggezza e Carisma.
+                </li>
+            </ul>
+        </li>
+        <li><strong>Orco:</strong> grandi guerrieri e validi condottieri provvisti di enorme forza. (+2 Forza, +1
+            Costituzione, Scurovisione, Intimidazione)<ul>
+                <li>Scurovisione: Vedi al buio.</li>
+                <li>Intimidazione: Hai vantaggio sui tiri di intimidazione.</li>
+            </ul>
+        </li>
+        <li><strong>Umano:</strong> la più adattabile e versatile razza. (+1 a tutte le statistiche, Ingegno,
+            Apprendimento
+            Rapido)<ul>
+                <li>Ingegno: Hai vantaggio sui tiri di Investigazione e Storia.</li>
+                <li>Apprendimento Rapido: Puoi imparare una abilità da un&#39;altro essere.</li>
+            </ul>
+        </li>
+        <li><strong>Demone:</strong> una creatura proveniente dall&#39;inferno. (+2 Carisma, +1 Intelligenza,
+            Scurovisione,
+            Resistenza infernale)<ul>
+                <li>Scurovisione: Vedi al buio.</li>
+                <li>Resistenza infernale: Resistenza ai danni da Fuoco.</li>
+            </ul>
+        </li>
+        <li><strong>Uomini-bestia:</strong> creature miste tra un umano e una creatura. (+2 Forza, +1 a 2 statistiche,
+            Artigli, Sensi aumentati)<ul>
+                <li>Artigli: Gli artigli fungono da arma naturale per gli attacchi a mani nude. Causa danno da Taglio.
+                </li>
+                <li>Sensi aumentati: Hai vantaggio sui tiri di percezione.</li>
+            </ul>
+        </li>
+        <li><strong>Dragonborn:</strong> creature discendenti dai draghi ma che ne hanno perso la maggior parte del
+            potere.
+            (+2 Forza, +1 Carisma, Arma del fiato, Scaglie dure)<ul>
+                <li>Arma del fiato: Esali il tipo di attacco ereditato dai tuoi antenati.</li>
+                <li>Scaglie dure: Resistenza contro il tipo di danno associato ai tuoi antenati.</li>
+                <li>Eredità: 
+                    <ul>
+                        <li>Drago Cromatico Rosso: Fuoco</li>
+                        <li>Drago Metallico Oro: Fuoco</li>
+                        <li>Drago Cromatico Verde: Veleno</li>
+                        <li>Drago Metallico Acciaio: Veleno</li>
+                        <li>Drago Cromatico Blu: Fulmine</li>
+                        <li>Drago Metallico Bronzo: Fulmine</li>
+                        <li>Drago Cromatico Bianco: Ghiaccio</li>
+                        <li>Drago Metallico Argento: Ghiaccio</li>
+                        <li>Drago Cromatico Nero: Acido</li>
+                        <li>Drago Metallico Rame: Acido</li>
+                    </ul>
+                </li>
+            </ul>
+        </li>
+        <li><strong>Fate:</strong> il popolo fatato delle foreste magiche. (+2 Saggezza, +1 Carisma, Volo, Ammaliamento)
+            <ul>
+                <li>Volo: Puoi volare o fluttuare. La tua velocità rimane invariata.</li>
+                <li>Ammaliamento: Hai vantaggio sui tiri di Dialettica e Persuasione.</li>
+            </ul>
+        </li>
+        <li><strong>Uomini-lucertola:</strong> Un popolo di nobili guerrieri che vive nelle paludi. (+2 Costituzione, +1
+            Destrezza, Trattenere il respiro, Cacciatore)<ul>
+                <li>Trattenere il respiro: Puoi trattenere il respiro fino a 15 minuti.</li>
+                <li>Cacciatore: Hai vantaggio sui tiri di Gestione degli animali e Furtività.</li>
+            </ul>
+        </li>
     </ul>
 </section>
 {% endblock main %}
