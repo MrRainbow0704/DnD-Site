@@ -46,8 +46,9 @@ functions.SQL_query(
             UserName VARCHAR(32) UNIQUE NOT NULL,
             Pwd VARCHAR(512) NOT NULL,
             Salt VARCHAR(32) NOT NULL,
-            Campaigns TEXT NOT NULL DEFAULT ('[]'));
-            """,
+            Campaigns TEXT NOT NULL DEFAULT ('[]')
+        );
+    """,
 )
 
 functions.SQL_query(
@@ -56,6 +57,8 @@ functions.SQL_query(
             Code VARCHAR(32) PRIMARY KEY,
             CampaignName TEXT NOT NULL,
             DungeonMaster INTEGER NOT NULL,
-            Players TEXT NOT NULL DEFAULT ('[]'));
-            """,
+            Players TEXT NOT NULL DEFAULT ('[]'),
+            CampaignUrl TEXT NOT NULL
+        );
+    """,
 )

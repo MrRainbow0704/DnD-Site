@@ -20,7 +20,8 @@ function error_message(data, errType) {
 	);
 }
 
-function togglePassword(input_id) {
+
+function toggle_password(input_id) {
 	const toggler = document.getElementById(`${input_id}-toggler`);
 	const password = document.getElementById(input_id);
 	if (password.getAttribute('type') === 'password') {
@@ -31,3 +32,41 @@ function togglePassword(input_id) {
 		toggler.innerHTML = '<i class="bi bi-eye-fill"></i>';
 	}
 }
+
+
+function update_theme(theme) {
+	const htmlElement = document.getElementsByTagName("html")[0];
+	const togglerElement = document.getElementById("theme-toggler-icon");
+
+	htmlElement.dataset.bsTheme = theme;
+	if (theme === "dark") {
+		togglerElement.className = "bi bi-sun-fill";
+	} else {
+		togglerElement.className = "bi bi-moon-fill";
+	}
+}
+
+function toggle_theme() {
+	const currentTheme = localStorage.getItem("theme");
+	
+	if (currentTheme === "dark") {
+		localStorage.setItem("theme", "light");
+		update_theme("light")
+	} else {
+		localStorage.setItem("theme", "dark");
+		update_theme("dark")
+	}
+}
+
+
+function on_load() {
+	const currentTheme = localStorage.getItem("theme");
+	if (currentTheme === "dark") {
+		update_theme("dark")
+	} else {
+		update_theme("light")
+	}
+}
+
+
+document.onload = on_load()

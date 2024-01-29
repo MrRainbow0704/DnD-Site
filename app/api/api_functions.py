@@ -172,18 +172,21 @@ def create_campaign(
         functions.SQL_query(
             CampaignDb,
             """CREATE TABLE IF NOT EXISTS Players (
-                UserId INTEGER PRIMARY KEY,
-                Name TEXT UNIQUE NOT NULL,
-                DmgTaken INTEGER DEFAULT 0,
-                Lvl INTEGER DEFAULT 1,
-                Exp INTEGER DEFAULT 0,
-                Inventory TEXT DEFAULT ('[]'),
-                Class TEXT DEFAULT ('{}'),
-                Race TEXT DEFAULT ('{}'),
-                Equipment TEXT DEFAULT ('{}'),
-                Stats TEXT DEFAULT ('{}')
+                    Id INTEGER PRIMARY KEY,
+                    Name TEXT UNIQUE NOT NULL,
+                    DmgTaken INTEGER DEFAULT 0,
+                    Lvl INTEGER NOT NULL DEFAULT 1,
+                    Exp INTEGER NOT NULL DEFAULT 0,
+                    Class TEXT NOT NULL,
+                    Race TEXT NOT NULL,
+                    Strength INTEGER NOT NULL,
+                    Dexterity INTEGER NOT NULL,
+                    Constitution INTEGER NOT NULL,
+                    Intelligence INTEGER NOT NULL,
+                    Wisdom INTEGER NOT NULL,
+                    Charisma INTEGER NOT NULL
                 );
-        """,
+            """,
         )
         == False
     ):
@@ -325,7 +328,8 @@ def delete_campaign(db: mysql.MySQLConnection, code: str) -> bool:
 
     if (
         functions.SQL_query(
-            CampaignDb, "DROP DATABASE `%s`;" % f"dnd_site_campaign_{code}")
+            CampaignDb, "DROP DATABASE `%s`;" % f"dnd_site_campaign_{code}"
+        )
         == False
     ):
         return False
@@ -367,7 +371,7 @@ def join_campaign(db: mysql.MySQLConnection, code: str, id_: int, name: str) -> 
     if (
         functions.SQL_query(
             CampaignDb,
-            "INSERT INTO Players (UserId, Name) VALUES (%s, %s);",
+            "INSERT INTO Players (Id, Name) VALUES (%s, %s);",
             (id_, name),
         )
         == False
@@ -409,7 +413,10 @@ def join_campaign(db: mysql.MySQLConnection, code: str, id_: int, name: str) -> 
         functions.SQL_query(
             db,
             "UPDATE Users SET Campaigns=%s WHERE Id=%s;",
-            (json.dumps(campaigns), id_,),
+            (
+                json.dumps(campaigns),
+                id_,
+            ),
         )
         == False
     ):

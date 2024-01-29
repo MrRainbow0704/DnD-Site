@@ -166,9 +166,7 @@ def get_user_from_id(db: mysql.MySQLConnection, id_: int) -> Literal[False] | di
     """
 
     # Chiede al database tutte le righe della tabella `Users` che hanno l'id indicato
-    row = SQL_query(
-        db, "SELECT * FROM Users WHERE Id = %s;", (id_,), single=True
-    )
+    row = SQL_query(db, "SELECT * FROM Users WHERE Id = %s;", (id_,), single=True)
     if row:
         return row
     return False
@@ -186,13 +184,15 @@ def get_player_from_id(db: mysql.MySQLConnection, id_: str) -> Literal[False] | 
     """
 
     # Chiede al database tutte le righe della tabella `Users` che hanno l'id indicato
-    row = SQL_query(db, "SELECT * FROM Players WHERE UserId=%s;", (id_,), single=True)
+    row = SQL_query(db, "SELECT * FROM Players WHERE Id=%s;", (id_,), single=True)
     if row != False:
         return row
     return False
 
 
-def get_campaign_from_code(db: mysql.MySQLConnection, code: str) -> Literal[False] | dict:
+def get_campaign_from_code(
+    db: mysql.MySQLConnection, code: str
+) -> Literal[False] | dict:
     """Ottiene tutte le righe di una campagna in base al suo id.
 
     Args:
@@ -220,7 +220,9 @@ def is_logged_in() -> bool:
     return "Id" in session
 
 
-def get_user_campaigns(db: mysql.MySQLConnection, id_: int) -> list[dict] | Literal[False]:
+def get_user_campaigns(
+    db: mysql.MySQLConnection, id_: int
+) -> list[dict] | Literal[False]:
     """Ottieni tutte le campagne a cui partecipa un utente.
 
     Args:

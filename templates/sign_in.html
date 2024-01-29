@@ -13,7 +13,8 @@
         <label class="col-2 form-label p-2 m-2" for="password">Password:</label>
         <span class="col p-0 m-2 d-flex">
             <input class="form-control" type="password" name="password" id="password" placeholder="Password...">
-            <button onclick="togglePassword('password')" class="toggle-password btn m-0" type="button" id="password-toggler">
+            <button onclick="toggle_password('password')" class="toggle-password btn m-0" type="button"
+                id="password-toggler">
                 <i class="bi bi-eye-fill"></i>
             </button>
         </span>
@@ -21,15 +22,17 @@
     <span class="row mx-0 my-2">
         <label class="col-2 form-label p-2 m-2" for="password-repeat">Ripeti password:</label>
         <span class="col p-0 m-2 d-flex">
-            <input class="form-control" type="password" name="password-repeat" id="password-repeat" placeholder="Ripeti password...">
-            <button onclick="togglePassword('password-repeat')" class="toggle-password btn m-0" type="button" id="password-repeat-toggler">
+            <input class="form-control" type="password" name="password-repeat" id="password-repeat"
+                placeholder="Ripeti password...">
+            <button onclick="toggle_password('password-repeat')" class="toggle-password btn m-0" type="button"
+                id="password-repeat-toggler">
                 <i class="bi bi-eye-fill"></i>
             </button>
         </span>
     </span>
     <span class="d-flex justify-content-between">
         <p>Non hai un account? Crealo <a href="{{ url_for('sign_in') }}">QUI!</a></p>
-        <button class="btn btn-primary m-2 p-2" type="button" onclick="sign_in()">Registrati</button>
+        <button class="btn btn-primary m-2 p-2" type="submit" onclick="event.preventDefault(); sign_in()">Registrati</button>
     </span>
 </form>
 {% endblock main %}

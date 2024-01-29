@@ -12,47 +12,51 @@ from .. import MAINDB, functions
 @api.route("/sign-in", methods=["POST"])
 def sign_in():
     try:
-        # Ottieni tutti i valori dalla POST request
-        userName = request.form.get("UserName")
-        pwd = request.form.get("Pwd")
-        pwdRepeat = request.form.get("PwdRepeat")
+        if request.form.get("Token") == session["Token"]:
+            # Ottieni tutti i valori dalla POST request
+            userName = request.form.get("UserName")
+            pwd = request.form.get("Pwd")
+            pwdRepeat = request.form.get("PwdRepeat")
 
-        # Controlla che nessuno dei valori di input sia vuoto
-        if api_functions.empty_input(userName, pwd, pwdRepeat):
-            return jsonify(description="Empty input."), 400
+            # Controlla che nessuno dei valori di input sia vuoto
+            if api_functions.empty_input(userName, pwd, pwdRepeat):
+                return jsonify(description="Empty input."), 400
 
-        # Controlla che il nome sia valido
-        if api_functions.invalid_name(userName):
-            return jsonify(description="Invalid name."), 400
+            # Controlla che il nome sia valido
+            if api_functions.invalid_name(userName):
+                return jsonify(description="Invalid name."), 400
 
-        # Controlla che le password siano uguali
-        if pwd != pwdRepeat:
-            return jsonify(description="Password don't match."), 400
+            # Controlla che le password siano uguali
+            if pwd != pwdRepeat:
+                return jsonify(description="Password don't match."), 400
 
-        # Controlla che non ci siano già utenti con lo stesso nome
-        if functions.get_user_from_name(MAINDB, userName):
-            return jsonify(description="Username already in use."), 400
+            # Controlla che non ci siano già utenti con lo stesso nome
+            if functions.get_user_from_name(MAINDB, userName):
+                return jsonify(description="Username already in use."), 400
 
-        # Genera un nuovo salt e poi prova a creare un nuovo account
-        salt = uuid().hex
-        if not api_functions.create_user(MAINDB, userName, pwd, salt):
+            # Genera un nuovo salt e poi prova a creare un nuovo account
+            salt = uuid().hex
+            if not api_functions.create_user(MAINDB, userName, pwd, salt):
+                return (
+                    jsonify(
+                        description="User creation failed.",
+                        info="Error at: app/api/routes@sign_in()",
+                    ),
+                    500,
+                )
+
+            # Prova a loggare l'utente nell'account appena creato
+            if api_functions.login_user(MAINDB, userName, pwd):
+                return jsonify(description="Sign-in successful."), 200
             return (
                 jsonify(
-                    description="User creation failed.",
+                    description="Login failed.",
                     info="Error at: app/api/routes@sign_in()",
                 ),
                 500,
             )
-
-        # Prova a loggare l'utente nell'account appena creato
-        if api_functions.login_user(MAINDB, userName, pwd):
-            return jsonify(description="Sign-in successful."), 200
-        return (
-            jsonify(
-                description="Login failed.", info="Error at: app/api/routes@sign_in()"
-            ),
-            500,
-        )
+        else:
+            return jsonify(description="Token non valido."), 403
     except Exception as e:
         return (
             jsonify(
@@ -126,7 +130,7 @@ def create_campaign():
             name = request.form.get("Name")
             if api_functions.empty_input(name):
                 return jsonify(description="Empty input."), 400
-            
+
             code = api_functions.create_campaign(MAINDB, name, session["Id"])
             if code == False:
                 return (
@@ -181,7 +185,7 @@ def delete_campaign():
                     500,
                 )
             for player in players:
-                if api_functions.remove_campaign(MAINDB, code, player["UserId"]) == False:
+                if api_functions.remove_campaign(MAINDB, code, player["Id"]) == False:
                     return (
                         jsonify(
                             description="SQL query failure.",
@@ -282,7 +286,6 @@ def leave_campaign():
             name = request.form.get("Name")
             if api_functions.empty_input(code, name):
                 return jsonify(description="Empty input."), 400
-            
             user = functions.get_user_from_name(MAINDB, name)
             if user == False:
                 return (
@@ -311,7 +314,7 @@ def leave_campaign():
             if (
                 functions.SQL_query(
                     CampaignDb,
-                    "DELETE * FROM Players WHERE UserId = %s;",
+                    "DELETE * FROM Players WHERE Id = %s;",
                     (user["Id"],),
                 )
                 == False

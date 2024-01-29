@@ -16,7 +16,13 @@ def index():
 
     # Aggiorna il token e renderizza la pagina
     session["Token"] = uuid4().hex
-    return render_template("index.html", token=session["Token"]), 200
+    return (
+        render_template(
+            "index.html",
+            token=session["Token"],
+        ),
+        200,
+    )
 
 
 @app.route("/sign-in")
@@ -25,7 +31,13 @@ def sign_in():
 
     # Aggiorna il token e renderizza la pagina
     session["Token"] = uuid4().hex
-    return render_template("sign_in.html", token=session["Token"]), 200
+    return (
+        render_template(
+            "sign_in.html",
+            token=session["Token"],
+        ),
+        200,
+    )
 
 
 @app.route("/login")
@@ -34,7 +46,13 @@ def login():
 
     # Aggiorna il token e renderizza la pagina
     session["Token"] = uuid4().hex
-    return render_template("login.html", token=session["Token"]), 200
+    return (
+        render_template(
+            "login.html",
+            token=session["Token"],
+        ),
+        200,
+    )
 
 
 @app.route("/logout")
@@ -82,6 +100,7 @@ def profile():
 @app.route("/documentazione")
 def documentation():
     return ""
+
 
 @app.route("/campagna/<string:code>")
 def campaign(code: str):
@@ -153,7 +172,7 @@ def campaign(code: str):
                 if type(pId) == int:
                     pl = functions.get_user_from_id(MAINDB, pId)
                 else:
-                    pl = functions.get_user_from_id(MAINDB, pId["UserId"])
+                    pl = functions.get_user_from_id(MAINDB, pId["Id"])
                 if pl == False:
                     return (
                         jsonify(
@@ -162,7 +181,7 @@ def campaign(code: str):
                         ),
                         500,
                     )
-                
+
                 players.append(pl["UserName"])
             # Alla fine renderizza la pagina con tutte le sue variabili
             return (
